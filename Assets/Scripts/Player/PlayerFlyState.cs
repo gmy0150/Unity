@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerAirState : PlayerFlyState
+public class PlayerFlyState : PlayerState
 {
-    public PlayerAirState(TPlayer _player, PlayerStateMachine _stateMachine, string _animBoolName) : base(_player, _stateMachine, _animBoolName)
+    public PlayerFlyState(TPlayer _player, PlayerStateMachine _stateMachine, string _animBoolName) : base(_player, _stateMachine, _animBoolName)
     {
     }
 
@@ -20,8 +20,9 @@ public class PlayerAirState : PlayerFlyState
     {
         base.Update();
         rb.velocity = new Vector2(xInput * player.moveSpeed, rb.velocity.y);
-        if(!Input.GetKeyDown(KeyCode.Space)&&!player.IsGroundDetected()){
-            stateMachine.ChangeState(player.airState);
+        if(player.IsGroundDetected()){
+            stateMachine.ChangeState(player.idleState);
         }
+        
     }
 }
