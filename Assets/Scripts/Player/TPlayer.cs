@@ -37,7 +37,7 @@ public class TPlayer : MonoBehaviour
     public PlayerMoveState moveState{get;private set;}
     public PlayerJumpState jumpState{get;private set;}
     public PlayerAirState airState{get;private set;}
-
+    public PlayerAttackState attackState{get; private set;}
 
     #endregion
     public float timer;
@@ -90,6 +90,19 @@ public class TPlayer : MonoBehaviour
             attackACount = 0;
             stateMachine.ChangeState(idleState);
             comboTime = false;
+        }
+    }
+    public void ResetTimer(){
+        timer = 0;
+        attackACount++;  // 키 입력 시 공격 횟수 증가
+
+    }
+
+    void CountTimer(){
+        timer += Time.deltaTime;
+        if(timer > ComboTimer){
+            attackACount = 0;
+            stateMachine.ChangeState(idleState);
         }
     }
     public void FlipController(){
