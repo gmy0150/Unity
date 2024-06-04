@@ -23,7 +23,7 @@ public class TPlayer : MonoBehaviour
 
     public int facingDir {get;private set;} = -1;
     private bool facingRight = true;
-
+    bool comboTime;
 
     #region Components
     public Animator anim{get; private set;}
@@ -58,7 +58,8 @@ public class TPlayer : MonoBehaviour
     private void Update() {
         stateMachine.currentState.Update();
         FlipController();
-        CountTimer();
+            // CountTimer();
+        
     }
     public void SetVelocity(float _xVelocity,float _yVelocity){
         rb.velocity = new Vector2(_xVelocity,_yVelocity);
@@ -71,9 +72,13 @@ public class TPlayer : MonoBehaviour
     public void Flip(){
         facingDir = facingDir * -1;
         facingRight = !facingRight;
+        
         transform.Rotate(0,180,0);
+
     }
+
     public void ResetTimer(){
+        comboTime = true;
         timer = 0;
         attackACount++;  // 키 입력 시 공격 횟수 증가
 
@@ -84,13 +89,16 @@ public class TPlayer : MonoBehaviour
         if(timer > ComboTimer){
             attackACount = 0;
             stateMachine.ChangeState(idleState);
+            comboTime = false;
         }
     }
     public void FlipController(){
         if(rb.velocity.x > 0 && !facingRight){//양수로 가고 facingRight가 false일 때 기본이 false니까 오른쪽을 보고있을 때, 오른쪽 이동일 때
             Flip();
+            Debug.Log("1");
         }else if(rb.velocity.x < 0 && facingRight){//음수로 가고 facingRight가 true일 때 왼쪽이동 transform.flip을 쓰면 문제가 되는 부분이 많으니까 이렇게 처리해서 하는 부분 이건 공부를 해야겠다.
             Flip();
+            Debug.Log("2");
         }
     }
 }
