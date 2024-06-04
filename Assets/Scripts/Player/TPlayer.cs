@@ -7,6 +7,7 @@ public class TPlayer : MonoBehaviour
     [Header("Move info")]
     public float moveSpeed = 8f;
     public float jumpforce;
+    public float atkspeed;
 
     [Header("count")]
     
@@ -24,6 +25,7 @@ public class TPlayer : MonoBehaviour
     public int facingDir {get;private set;} = -1;
     private bool facingRight = true;
     bool comboTime;
+    public bool atk;
 
     #region Components
     public Animator anim{get; private set;}
@@ -79,9 +81,10 @@ public class TPlayer : MonoBehaviour
 
     public void ResetTimer(){
         comboTime = true;
+        atk = true;
         timer = 0;
         attackACount++;  // 키 입력 시 공격 횟수 증가
-
+        rb.velocity = Vector2.zero;
     }
 
     void CountTimer(){
