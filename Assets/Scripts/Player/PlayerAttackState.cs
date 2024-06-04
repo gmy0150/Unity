@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerAttackState : PlayerState
@@ -10,9 +11,9 @@ public class PlayerAttackState : PlayerState
     
     public override void Enter()
     {
+        isATK =true;
         base.Enter();
         player.ResetTimer();
-
     }
     public override void Exit()
     {
@@ -25,10 +26,26 @@ public class PlayerAttackState : PlayerState
         StopA();
     }
     void StopA(){
-        
-        if (player.anim.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f) {
+        if(Input.GetKeyDown(KeyCode.A)){
+            isATK = true;
+        }
+        if (player.anim.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f&&!player.anim.IsInTransition(0)) {
+
+            // player.anim.SetBool("AttackA",false);
             // 추가 공격 입력이 있었다면 같은 상태를 재진입
-            stateMachine.ChangeState(player.idleState);
+
+            if(isATK){
+                stateMachine.ChangeState(player.attackState);
+                isATK = false;
+                
+                Debug.Log("isatk확인");
+
+            }else{
+                stateMachine.ChangeState(player.idleState);
+                Debug.Log("확인");
+
+            }
+
         }
         
     }
