@@ -247,7 +247,7 @@ Transform:
   m_GameObject: {fileID: 57796248}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.01, y: -2.32, z: 0}
+  m_LocalPosition: {x: 6, y: -2, z: 0}
   m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -332,8 +332,8 @@ Transform:
   m_GameObject: {fileID: 368750665}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.0589888, y: -3.8187447, z: 0}
-  m_LocalScale: {x: 55.32, y: 1, z: 1}
+  m_LocalPosition: {x: 2, y: -3.5, z: 0}
+  m_LocalScale: {x: 55, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -392,7 +392,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 594074572}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: GroundCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -426,9 +426,9 @@ GameObject:
   - component: {fileID: 755893678}
   - component: {fileID: 755893681}
   - component: {fileID: 755893680}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: GameObject
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -447,6 +447,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 8
   jumpforce: 12
+  attackACount: 0
+  ComboTimer: 3
   groundCheck: {fileID: 594074572}
   groundCheckDistance: 0.15
   WallCheck: {fileID: 1035588792}
@@ -457,6 +459,7 @@ MonoBehaviour:
   whatIsWall:
     serializedVersion: 2
     m_Bits: 1024
+  timer: 0
 --- !u!4 &755893679
 Transform:
   m_ObjectHideFlags: 0
@@ -548,6 +551,7 @@ GameObject:
   - component: {fileID: 966460384}
   - component: {fileID: 966460383}
   - component: {fileID: 966460382}
+  - component: {fileID: 966460385}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -629,6 +633,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &966460385
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 966460381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7bb639b81cba5a941922ce56f1926516, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 755893677}
 --- !u!1 &1035588791
 GameObject:
   m_ObjectHideFlags: 0
@@ -638,7 +655,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1035588792}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: WallCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -671,9 +688,9 @@ GameObject:
   - component: {fileID: 1818998306}
   - component: {fileID: 1818998308}
   - component: {fileID: 1818998307}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Character_wait_1_0
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
