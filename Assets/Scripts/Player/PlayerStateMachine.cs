@@ -15,4 +15,5 @@ public class PlayerStateMachine : MonoBehaviour
         currentState = _newState;
         currentState.Enter();
     }
-}
+
+} 

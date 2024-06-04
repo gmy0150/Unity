@@ -8,6 +8,11 @@ public class TPlayer : MonoBehaviour
     public float moveSpeed = 8f;
     public float jumpforce;
 
+    [Header("count")]
+    
+    public int attackACount;
+    public float ComboTimer;
+
     [Header("Collision info")]
     [SerializeField]private Transform groundCheck;
     [SerializeField]private float groundCheckDistance;
@@ -32,9 +37,10 @@ public class TPlayer : MonoBehaviour
     public PlayerMoveState moveState{get;private set;}
     public PlayerJumpState jumpState{get;private set;}
     public PlayerAirState airState{get;private set;}
-
+    public PlayerAttackState attackState{get; private set;}
 
     #endregion
+    public float timer;
     private void Awake() {
         stateMachine = new PlayerStateMachine();
         
@@ -42,6 +48,7 @@ public class TPlayer : MonoBehaviour
         moveState = new PlayerMoveState(this, stateMachine,"Move");
         jumpState = new PlayerJumpState(this, stateMachine, "Jump");
         airState = new PlayerAirState(this, stateMachine, "Jump");
+        attackState = new PlayerAttackState(this, stateMachine, "AttackA");
     }
     private void Start() {
         anim = GetComponentInChildren<Animator>();
@@ -51,6 +58,7 @@ public class TPlayer : MonoBehaviour
     private void Update() {
         stateMachine.currentState.Update();
         FlipController();
+        CountTimer();
     }
     public void SetVelocity(float _xVelocity,float _yVelocity){
         rb.velocity = new Vector2(_xVelocity,_yVelocity);
@@ -64,6 +72,19 @@ public class TPlayer : MonoBehaviour
         facingDir = facingDir * -1;
         facingRight = !facingRight;
         transform.Rotate(0,180,0);
+    }
+    public void ResetTimer(){
+        timer = 0;
+        attackACount++;  // 키 입력 시 공격 횟수 증가
+
+    }
+
+    void CountTimer(){
+        timer += Time.deltaTime;
+        if(timer > ComboTimer){
+            attackACount = 0;
+            stateMachine.ChangeState(idleState);
+        }
     }
     public void FlipController(){
         if(rb.velocity.x > 0 && !facingRight){//양수로 가고 facingRight가 false일 때 기본이 false니까 오른쪽을 보고있을 때, 오른쪽 이동일 때
