@@ -27,18 +27,18 @@ public class PlayerState
         
         player.anim.SetFloat("yVelocity",rb.velocity.y);
         
-        if(player.attackACount==0 ){
-            player.anim.SetFloat("Sword",0f);
-        }
-        else if(player.attackACount==1 ){
-            player.anim.SetFloat("Sword",0.33f);
-        }
-        else if(player.attackACount == 2 ){
-            player.anim.SetFloat("Sword",0.66f);
-        }
-        if(player.attackACount >= 3){
-            player.attackACount = 0;
-        }
+        // if(player.attackACount==0 ){
+        //     player.anim.SetFloat("Sword",0f);
+        // }
+        // else if(player.attackACount==1 ){
+        //     player.anim.SetFloat("Sword",0.33f);
+        // }
+        // else if(player.attackACount == 2 ){
+        //     player.anim.SetFloat("Sword",0.66f);
+        // }
+        // if(player.attackACount >= 3){
+        //     player.attackACount = 0;
+        // }
 
     }
     public virtual void Exit(){
