@@ -24,9 +24,7 @@ public class TPlayer : MonoBehaviour
 
     public int facingDir {get;private set;} = -1;
     private bool facingRight = true;
-    bool comboTime;
-    public bool atk;
-
+    public bool isBusy;
     #region Components
     public Animator anim{get; private set;}
     public Rigidbody2D rb{get;private set;}
@@ -60,9 +58,16 @@ public class TPlayer : MonoBehaviour
     private void Update() {
         stateMachine.currentState.Update();
         FlipController();
-            // CountTimer();
-        
     }
+    public IEnumerator BusyFor(){
+        isBusy = true;
+        yield return new WaitForSeconds(0.2f);
+        isBusy = false;
+    }
+    public void AnimationTrigger() => stateMachine.currentState.AnimationFinsihTrigger();//함수 호출후 animationFinishTrigger를 작동하게 함
+
+    public void MoveTrigger() => stateMachine.currentState.AnimationMoveTrigger();
+
     public void SetVelocity(float _xVelocity,float _yVelocity){
         rb.velocity = new Vector2(_xVelocity,_yVelocity);
     }
@@ -79,22 +84,6 @@ public class TPlayer : MonoBehaviour
 
     }
 
-    public void ResetTimer(){
-        comboTime = true;
-        atk = true;
-        timer = 0;
-        attackACount++;  // 키 입력 시 공격 횟수 증가
-        rb.velocity = Vector2.zero;
-    }
-
-    void CountTimer(){
-        timer += Time.deltaTime;
-        if(timer > ComboTimer){
-            attackACount = 0;
-            stateMachine.ChangeState(idleState);
-            comboTime = false;
-        }
-    }
     public void FlipController(){
         if(rb.velocity.x > 2 && !facingRight){//양수로 가고 facingRight가 false일 때 기본이 false니까 오른쪽을 보고있을 때, 오른쪽 이동일 때
             Flip();

@@ -28,6 +28,5 @@ public class PlayerGroundState : PlayerState
         if(Input.GetKeyDown(KeyCode.A)&&player.IsGroundDetected()){
             stateMachine.ChangeState(player.attackState);
         }
-        
     }
 }

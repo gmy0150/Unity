@@ -13,6 +13,8 @@ public class PlayerState
     protected Rigidbody2D rb;
     protected float xInput;
     private string animBoolName;
+    protected bool triggerCalled;
+    protected bool moveTrigger;
     public PlayerState(TPlayer _player,PlayerStateMachine _stateMachine, string _animBoolName){
         this.player = _player;
         this.stateMachine = _stateMachine;
@@ -21,28 +23,27 @@ public class PlayerState
     public virtual void Enter(){
         player.anim.SetBool(animBoolName,true);
         rb = player.rb;
+        triggerCalled = false;
+        moveTrigger = false;
+        isATK =false;
+
     }
     public virtual void Update(){
-        xInput = Input.GetAxisRaw("Horizontal");
+        if(!isATK)
+            xInput = Input.GetAxisRaw("Horizontal");
             
         
         player.anim.SetFloat("yVelocity",rb.velocity.y);
         
-        if(player.attackACount==0 ){
-            player.anim.SetFloat("Sword",0f);
-        }
-        else if(player.attackACount==1 ){
-            player.anim.SetFloat("Sword",0.33f);
-        }
-        else if(player.attackACount == 2 ){
-            player.anim.SetFloat("Sword",0.66f);
-        }
-        if(player.attackACount >= 3){
-            player.attackACount = 0;
-        }
 
     }
     public virtual void Exit(){
         player.anim.SetBool(animBoolName,false);
+    }
+    public virtual void AnimationFinsihTrigger(){
+        triggerCalled = true;
+    }
+    public virtual void AnimationMoveTrigger(){
+        moveTrigger = true;
     }
 }
