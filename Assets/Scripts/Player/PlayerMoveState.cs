@@ -19,10 +19,10 @@ public class PlayerMoveState : PlayerGroundState
     public override void Update()
     {
         base.Update();
-        if(!player.atk)
+        if(!isATK)
             player.SetVelocity(xInput * player.moveSpeed,rb.velocity.y);
 
-        if(xInput == 0){
+        if(xInput == 0&&!player.isBusy){
             stateMachine.ChangeState(player.idleState);
         }
     } 
