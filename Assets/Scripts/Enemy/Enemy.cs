@@ -21,7 +21,7 @@ public class Enemy : MonoBehaviour
     public bool isEnter;
     public Rigidbody2D rigid;
     bool chasingPlayer;
-    Player player;
+    TPlayer player;
     Vector2 movement;
     [SerializeField]private GameObject particle;
     SpriteRenderer spriteRenderer;
@@ -35,10 +35,10 @@ public class Enemy : MonoBehaviour
     public float fireRate = 2.0f;  
     private float nextFireTime = 0f;
     private void OnEnable() {
-        attackpoint.OnTriggerEnter2DEvent.AddListener(attacktar);
+        // attackpoint.OnTriggerEnter2DEvent.AddListener(attacktar);
     }
     void Start() {
-        player = GameObject.FindWithTag("Player").GetComponent<Player>();
+        player = GameObject.FindWithTag("Player").GetComponent<TPlayer>();
         if(enemyType != Type.elite){
             particle.SetActive(false);
             curShiled = 0;
@@ -72,8 +72,11 @@ public class Enemy : MonoBehaviour
 
     }
     void FixedUpdate(){
-        EnemyAI();
-        detectPlayer();
+        if(!isEnter){
+            EnemyAI();
+            detectPlayer();
+
+        }
     }
     void detectPlayer(){
         Vector2 castDirection = transform.localScale.x > 0 ? Vector2.right : Vector2.left;
@@ -208,14 +211,14 @@ public class Enemy : MonoBehaviour
                 switch(enemyType){
                     case Type.melee:
                     case Type.ranger:
-                        curHelath -= player.Hammerdamgae;
+                        // curHelath -= player.Hammerdamgae;
                     break;
                     case Type.elite:
                         if(curShiled >= 0){
                             curShiled -= 40;
                         }
                         else{
-                            curHelath -= player.Hammerdamgae;
+                            // curHelath -= player.Hammerdamgae;
                         }
                     break;
                 }
@@ -299,12 +302,12 @@ public class Enemy : MonoBehaviour
     }
     IEnumerator ArrowSkillDmg(Vector3 reactVec){
         StartCoroutine(OnDamage(reactVec));
-        curHelath -= player.Sworddamage;
+        // curHelath -= player.Sworddamage;
         yield return new WaitForSeconds(0.1f);
         StartCoroutine(OnDamage(reactVec));
-        curHelath -= player.Sworddamage;
+        // curHelath -= player.Sworddamage;
         yield return new WaitForSeconds(0.1f);
-        curHelath -= player.Sworddamage;
+        // curHelath -= player.Sworddamage;
         yield return new WaitForSeconds(0.1f);
     }
     IEnumerator OnDamage(Vector3 reactVec){
@@ -348,14 +351,14 @@ public class Enemy : MonoBehaviour
             switch(enemyType){
                     case Type.melee:
                     case Type.ranger:
-                    curHelath -= player.Hammerdamgae;
+                    // curHelath -= player.Hammerdamgae;
                 break;
                 case Type.elite:
                     if(curShiled >= 0){
                         curShiled -= 40;
                     }
                     else{
-                        curHelath -= player.Hammerdamgae;
+                        // curHelath -= player.Hammerdamgae;
                     }
                 break;
             }
@@ -364,14 +367,14 @@ public class Enemy : MonoBehaviour
             switch(enemyType){
                     case Type.melee:
                     case Type.ranger:
-                    curHelath -= player.Sworddamage + 3;
+                    // curHelath -= player.Sworddamage + 3;
                 break;
                 case Type.elite:
                     if(curShiled >= 0){
                         curShiled -=  10;
                     }
                     else{
-                        curHelath -= player.Sworddamage;
+                        // curHelath -= player.Sworddamage;
                     }
                 break;
             }

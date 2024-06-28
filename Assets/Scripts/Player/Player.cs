@@ -276,7 +276,7 @@ public class Player : MonoBehaviour{
         OnHammmer();
         
         detailAD();
-        }
+    }
     void SkillASD(){
         if(skillasdCol){
             anim.ResetTrigger("doSkill2");

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    public int a;
     public List<GameObject> arrows = new List<GameObject>();
 
     // 화살 추가
