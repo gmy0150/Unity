@@ -11,7 +11,7 @@ public class bullet : MonoBehaviour{
     public enum Type{Arrow,Skill}
     public bool isPenetrate;
     public List<GameObject> instatarrow = new List<GameObject>();   
-    Player player;
+    TPlayer player;
     public GameManager gameManager;
     float playerX;
     public void SetPlayerX(float x)
@@ -20,7 +20,7 @@ public class bullet : MonoBehaviour{
     }
 
     private void Awake() {
-        player = GameObject.FindWithTag("Player").GetComponent<Player>();
+        player = GameObject.FindWithTag("Player").GetComponent<TPlayer>();
         gameManager = GameObject.FindWithTag("GameManager").GetComponent<GameManager>(); // 게임 매니저 초기화
     }
 
@@ -48,7 +48,7 @@ public class bullet : MonoBehaviour{
                     newArrow.transform.parent = collision.transform;
                     gameManager.AddArrow(newArrow);
 
-                    player.a++;
+                    gameManager.a++;
                 
                     if (gameManager.ArrowCount() > 1)
                     {

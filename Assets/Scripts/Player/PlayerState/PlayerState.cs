@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class PlayerState
 {
+    protected float lastTimeAttacked;
+    protected float deletecombo = 3;
     protected bool isATK;
     protected bool endanim;
 
@@ -20,21 +22,22 @@ public class PlayerState
         this.stateMachine = _stateMachine;
         this.animBoolName = _animBoolName;
     }
+    public PlayerState(TPlayer _player,PlayerStateMachine _stateMachine){
+        this.player = _player;
+        this.stateMachine = _stateMachine;
+    }
     public virtual void Enter(){
+        if(animBoolName != null)
         player.anim.SetBool(animBoolName,true);
-        rb = player.rb;
+        rb = player.rigid;
         triggerCalled = false;
         moveTrigger = false;
         isATK =false;
-
     }
     public virtual void Update(){
         if(!isATK)
             xInput = Input.GetAxisRaw("Horizontal");
-            
-        
         player.anim.SetFloat("yVelocity",rb.velocity.y);
-        
 
     }
     public virtual void Exit(){
@@ -46,4 +49,5 @@ public class PlayerState
     public virtual void AnimationMoveTrigger(){
         moveTrigger = true;
     }
+    
 }

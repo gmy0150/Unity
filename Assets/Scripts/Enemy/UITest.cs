@@ -7,16 +7,14 @@ public class UITest : MonoBehaviour
 {
     float timer;
     Animator animator = new Animator();
-    // Start is called before the first frame update
     void Start()
     {
         animator = GetComponentInChildren<Animator>();
         if(animator!= null)
-        Debug.Log("?11");
+        Debug.Log("애니매이션 없음");
 
     }
 
-    // Update is called once per frame
     void Update()
     {
         timer += Time.deltaTime;
@@ -37,7 +35,6 @@ public class UITest : MonoBehaviour
         else if(timer > 3){
             animator.SetBool("UI",true);
             animator.SetFloat("Blend",0f);
-        Debug.Log("?");
 
         }
     }
