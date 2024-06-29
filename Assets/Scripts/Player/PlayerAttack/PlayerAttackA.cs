@@ -10,6 +10,16 @@ public class PlayerAttackA : PlayerAttackState
     public override void Enter(){
         base.Enter();
 
+        // else if(Input.GetKey(KeyCode.A)&&Input.GetKey(KeyCode.S)&&player.IsGroundDetected()&&player.CoolTime("SkillAS")){
+        //     stateMachine.ChangeState(player.skillAS);
+        // }
+        // else if(Input.GetKey(KeyCode.A)&&Input.GetKey(KeyCode.D)&&player.IsGroundDetected()&&player.CoolTime("SkillAD")){
+        //     stateMachine.ChangeState(player.skillAD);
+        // }
+        // else if(Input.GetKey(KeyCode.S)&&Input.GetKey(KeyCode.D)&&player.IsGroundDetected()){
+        //     Debug.Log("??");
+        //     stateMachine.ChangeState(player.skillSD);
+        // }
         enemyLayer =  LayerMask.GetMask ("Enemy");
         isATK = true;
         var = false;
@@ -26,7 +36,7 @@ public class PlayerAttackA : PlayerAttackState
     }
     public override void Update(){
         base.Update();
-
+        
     }
     
 

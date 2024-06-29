@@ -58,10 +58,14 @@ public class TPlayer : MonoBehaviour
     public PlayerAS skillAS{get; private set;}
     public PlayerSD skillSD{get; private set;}
     public PlayerASD skillASD{get; private set;}
+    [SerializeField]private GameObject SkillObj;
 
+    LineRenderer lineRenderer;
+    float rayDelay = 2.0f;
+    float lineLength  = 5.0f;
     [SerializeField]private GameObject playerPrefab;
 
-
+    public bool isAS{get;private set;}
 
 
     #endregion
@@ -80,6 +84,7 @@ public class TPlayer : MonoBehaviour
         skillAS = new PlayerAS(this,stateMachine);
         skillSD = new PlayerSD(this,stateMachine);
         skillASD = new PlayerASD(this,stateMachine);
+        lineRenderer = GetComponentInChildren<LineRenderer>();
 
         Enemy[] allEnemies = FindObjectsOfType<Enemy>();
         foreach (Enemy enemy in allEnemies) {
@@ -234,6 +239,7 @@ public class TPlayer : MonoBehaviour
     public bool CoolTime(string cool){
         if(cool == "SkillAD"){
             if(Time.time >lastskillad + SkillADCool){
+                lastskillad = Time.time;
                 Debug.Log("확인");
                 return true;
             }else{
@@ -241,23 +247,112 @@ public class TPlayer : MonoBehaviour
             }
         }else if(cool == "SkillSD"){
             if(Time.time >lastskillsd + SkillSDCool){
+                lastskillsd = Time.time;
                 return true;
             }else{
                 return false;
             }
         }else if(cool == "SkillAS"){
             if(Time.time >lastskillas + SkillADCool){
+                lastskillas = Time.time;
+
                 return true;
             }else{
                 return false;
             }
         }else if(cool == "SkillASD"){
             if(Time.time >lastskillasd + SkillASDCool){
+                lastskillasd = Time.time;
                 return true;
             }else{
                 return false;
             }
         }else{
+            return false;
+        }
+    }
+    public void detailAS(){
+        isAS = true;
+        lineRenderer.startWidth = 1f;
+        lineRenderer.endWidth = 1f;
+
+        Vector3 startPos = transform.position;
+        Vector3 endPos = transform.position + transform.right * lineLength;
+
+        lineRenderer.positionCount = 2;
+        lineRenderer.SetPosition(0, startPos);
+        lineRenderer.SetPosition(1, endPos);
+
+        StartCoroutine(DrawRayAfterDelay(startPos,endPos));
+    }
+
+    IEnumerator DrawRayAfterDelay(Vector3 startPos, Vector3 endPos){
+        yield return new WaitForSeconds(rayDelay);
+        lineRenderer.startWidth = 0f;
+        lineRenderer.endWidth = 0f;
+        Vector3 rayDirection = (endPos - startPos).normalized;
+
+        Vector3 rayOrigin = startPos;
+
+
+        Debug.DrawRay(rayOrigin, rayDirection * lineLength, Color.blue, 0.5f);
+        isAS = false;
+    }
+
+    public void useASD(){
+        Vector3 bulletPosition = transform.position + transform.up * 0.5f;
+        float direction = facingDir;
+
+        Quaternion rotation = Quaternion.Euler(0, 0, direction*90f);
+        
+        GameObject bullet = Instantiate(SkillObj, bulletPosition, rotation);
+
+        Rigidbody2D bulletRigidbody = bullet.GetComponent<Rigidbody2D>();
+        if(bulletRigidbody != null){
+            bulletRigidbody.AddForce(transform.right * (facingDir * -50), ForceMode2D.Impulse);
+        }
+            
+            bullet.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
+        
+        StartCoroutine(detailASD());
+        Destroy(bullet,5);
+    }
+    IEnumerator detailASD(){
+        bool hasTime = false;
+        targetTime = Time.time;
+        yield return new WaitForSeconds(0.3f);
+        // foreach (Enemy enemy in enemies){
+        //     StartCoroutine(SkillCheck(enemy));
+        // }
+        yield return new WaitUntil(() => CheckEnter()||skilalsdTime()||checkWallAhead());
+
+        foreach (Enemy enemy in enemies)
+        {
+            if (enemy != null && enemy.isEnter){
+                hasTime = true;
+                Debug.Log(enemy);
+                Transform enemyTransform = enemy.transform;
+                Vector3 targetPosition = enemyTransform.position - enemyTransform.forward * 2; // 적의 위치에서 앞으로 2만큼 떨어진 곳으로 설정
+                GameObject playerClone = Instantiate(playerPrefab, targetPosition, Quaternion.identity);
+                Destroy(gameObject);
+                enemy.TakeDamage(100);
+                enemy.isEnter = false;
+            }
+        }
+        if(!hasTime){
+        // StartCoroutine("skillASDTimes");
+        // StartCoroutine("ResetSkillCool");
+        yield break;
+        }
+        
+        // StartCoroutine("skillASDTimes");
+        // StartCoroutine("ResetSkillCool");
+        }
+    
+    bool skilalsdTime() {
+        if (Time.time - targetTime >= 2f) { 
+            return true;
+        } else {
             return false;
         }
     }
