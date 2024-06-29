@@ -25,24 +25,11 @@ public class PlayerGroundState : PlayerState
         if(!Input.GetKeyDown(KeyCode.Space)&&!player.IsGroundDetected()){
             stateMachine.ChangeState(player.airState);
         }
-        if(Input.GetKey(KeyCode.A)&&Input.GetKey(KeyCode.D)&&player.IsGroundDetected()&&player.CoolTime("SkillAD")){
-            stateMachine.ChangeState(player.skillAD);
-        }
-        if(Input.GetKey(KeyCode.A)&&Input.GetKey(KeyCode.S)&&player.IsGroundDetected()&&player.CoolTime("SkillAS")){
-            stateMachine.ChangeState(player.skillAS);
-        }
-        if(Input.GetKey(KeyCode.S)&&Input.GetKey(KeyCode.D)&&player.IsGroundDetected()){
-            Debug.Log("??");
-            stateMachine.ChangeState(player.skillSD);
-        }
-        if(Input.GetKey(KeyCode.A)&&Input.GetKey(KeyCode.D)&&Input.GetKey(KeyCode.S)&&player.IsGroundDetected()&&player.CoolTime("SkillASD")){
-            Debug.Log("??");
-            stateMachine.ChangeState(player.skillASD);
-        }
-
-        else if(Input.GetKeyDown(KeyCode.A)&&player.IsGroundDetected()){
+        if(Input.GetKeyDown(KeyCode.A)&&player.IsGroundDetected()){
             stateMachine.ChangeState(player.attackAState);
         }
+        
+
 
         // else if(Input.GetKeyDown(KeyCode.S)&&player.IsGroundDetected()){
         //     stateMachine.ChangeState(player.attackSState);

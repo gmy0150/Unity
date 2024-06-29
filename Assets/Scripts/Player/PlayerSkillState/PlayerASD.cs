@@ -11,6 +11,7 @@ public class PlayerASD : PlayerSkillState
     public override void Enter()
     {
         base.Enter();
+        player.useASD();
     }
     public override void Exit()
     {
@@ -19,5 +20,6 @@ public class PlayerASD : PlayerSkillState
     }
     public override void Update(){
         base.Update();
+        stateMachine.ChangeState(player.idleState);
     }
 }

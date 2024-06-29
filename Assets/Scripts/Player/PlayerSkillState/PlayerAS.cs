@@ -11,6 +11,7 @@ public class PlayerAS : PlayerSkillState
     public override void Enter()
     {
         base.Enter();
+        player.detailAS();
     }
     public override void Exit()
     {
@@ -19,5 +20,7 @@ public class PlayerAS : PlayerSkillState
     }
     public override void Update(){
         base.Update();
+        if(!player.isAS)
+            stateMachine.ChangeState(player.idleState);
     }
 }

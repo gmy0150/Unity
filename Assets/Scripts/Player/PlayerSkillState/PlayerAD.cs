@@ -11,7 +11,6 @@ public class PlayerAD : PlayerSkillState
     public override void Enter()
     {
         base.Enter();
-        player.lastskillad = Time.time;
         player.detailAD();
     }
     public override void Exit()

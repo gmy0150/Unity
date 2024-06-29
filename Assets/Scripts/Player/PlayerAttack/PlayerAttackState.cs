@@ -26,7 +26,10 @@ public class PlayerAttackState : PlayerState
     }
     public override void Update(){
         base.Update();
-        
+        if(Input.GetKey(KeyCode.A)&&Input.GetKey(KeyCode.D)&&Input.GetKey(KeyCode.S)&&player.IsGroundDetected()&&player.CoolTime("SkillASD")){
+            Debug.Log("??");
+            stateMachine.ChangeState(player.skillASD);
+        }
         StopA();
     }
     void StopA(){
