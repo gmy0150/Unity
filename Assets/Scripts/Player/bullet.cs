@@ -12,6 +12,7 @@ public class bullet : MonoBehaviour{
     public bool isPenetrate;
     public List<GameObject> instatarrow = new List<GameObject>();   
     TPlayer player;
+    Enemy enemy;
     public GameManager gameManager;
     float playerX;
     public void SetPlayerX(float x)
@@ -20,8 +21,13 @@ public class bullet : MonoBehaviour{
     }
 
     private void Awake() {
+        
         player = GameObject.FindWithTag("Player").GetComponent<TPlayer>();
+
+        enemy  = GameObject.FindWithTag ("Enemy").GetComponent<Enemy>();
+
         gameManager = GameObject.FindWithTag("GameManager").GetComponent<GameManager>(); // 게임 매니저 초기화
+
     }
 
     void OnCollisionEnter2D(Collision2D collision) {
@@ -59,6 +65,10 @@ public class bullet : MonoBehaviour{
                 Destroy(gameObject);
                 }
             Destroy(gameObject,5f);
+            }
+            else if(type == Type.Skill){
+                enemy.isEnter = true;
+            // Destroy(gameObject,5f);
             }
         }
     }

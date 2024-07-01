@@ -304,18 +304,20 @@ public class TPlayer : MonoBehaviour
         float direction = facingDir;
 
         Quaternion rotation = Quaternion.Euler(0, 0, direction*90f);
-        
-        GameObject bullet = Instantiate(SkillObj, bulletPosition, rotation);
-
-        Rigidbody2D bulletRigidbody = bullet.GetComponent<Rigidbody2D>();
-        if(bulletRigidbody != null){
-            bulletRigidbody.AddForce(transform.right * (facingDir * -50), ForceMode2D.Impulse);
-        }
-            
+        if(SkillObj != null){
+            GameObject bullet = Instantiate(SkillObj, bulletPosition, rotation);
+            Rigidbody2D bulletRigidbody = bullet.GetComponent<Rigidbody2D>();
+            if(bulletRigidbody != null){
+                bulletRigidbody.AddForce(transform.right * (facingDir * -50), ForceMode2D.Impulse);
+            }
             bullet.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
-        
-        StartCoroutine(detailASD());
-        Destroy(bullet,5);
+            StartCoroutine(detailASD());
+
+        }else{
+            Debug.Log("skillobj가 없음");
+        }
+
+        // Destroy(bullet,5);
     }
     IEnumerator detailASD(){
         bool hasTime = false;
@@ -324,7 +326,9 @@ public class TPlayer : MonoBehaviour
         // foreach (Enemy enemy in enemies){
         //     StartCoroutine(SkillCheck(enemy));
         // }
+        Debug.Log("1");
         yield return new WaitUntil(() => CheckEnter()||skilalsdTime()||checkWallAhead());
+        Debug.Log("2");
 
         foreach (Enemy enemy in enemies)
         {
@@ -336,7 +340,7 @@ public class TPlayer : MonoBehaviour
                 GameObject playerClone = Instantiate(playerPrefab, targetPosition, Quaternion.identity);
                 Destroy(gameObject);
                 enemy.TakeDamage(100);
-                enemy.isEnter = false;
+                // enemy.isEnter = false;
             }
         }
         if(!hasTime){

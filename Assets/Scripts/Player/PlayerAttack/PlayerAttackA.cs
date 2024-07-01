@@ -20,10 +20,10 @@ public class PlayerAttackA : PlayerAttackState
         //     Debug.Log("??");
         //     stateMachine.ChangeState(player.skillSD);
         // }
+        sword = true;
         enemyLayer =  LayerMask.GetMask ("Enemy");
-        isATK = true;
         var = false;
-        if(comboCounter > 2 || Time.time > lastTimeAttacked + deletecombo)
+        if(comboCounter > 1 || Time.time > lastTimeAttacked + deletecombo)
             comboCounter = 0;
         player.anim.SetInteger("ComboCounter",comboCounter);
     }
@@ -33,11 +33,9 @@ public class PlayerAttackA : PlayerAttackState
         comboCounter++;
         lastTimeAttacked = Time.time;
         player.StartCoroutine("BusyFor");
+        sword = false;
     }
     public override void Update(){
         base.Update();
-        
     }
-    
-
 }

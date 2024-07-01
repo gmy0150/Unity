@@ -10,6 +10,8 @@ public class PlayerAttackState : PlayerState
     protected float deletecombo = 3;
     protected LayerMask enemyLayer;
     protected bool var;
+    protected bool sword;
+    protected bool hammer;
     public PlayerAttackState(TPlayer _player, PlayerStateMachine _stateMachine, string _animBoolName) : base(_player, _stateMachine, _animBoolName)
     {
     }
@@ -17,11 +19,13 @@ public class PlayerAttackState : PlayerState
     public override void Enter()
     {
         base.Enter();
+        isATK = true;
 
     }
     public override void Exit()
     {
         base.Exit();
+        isATK = false;
 
     }
     public override void Update(){
@@ -46,6 +50,14 @@ public class PlayerAttackState : PlayerState
         RaycastHit2D hit =Physics2D.Raycast(player.transform.position, player.transform.right, player.AttackRange,enemyLayer);
         if(hit.collider != null){
             Debug.Log("hit"+ hit.transform.name);
+            Enemy  enemy = hit.transform.GetComponent<Enemy>();
+            if(enemy != null){
+                if(sword)
+                    enemy.TakeDamage(10);
+                else{
+                    enemy.TakeDamage(20);
+                }
+            }
         }
     } 
 }
