@@ -11,11 +11,18 @@ public class PlayerAttackD : PlayerAttackState
     public override void Enter()
     {
         base.Enter();
+        enemyLayer =  LayerMask.GetMask ("Enemy");
+        var = false;
+        if(comboCounter > 2 || Time.time > lastTimeAttacked + deletecombo)
+            comboCounter = 0;
+        player.anim.SetInteger("ComboCounter",comboCounter);
     }
     public override void Exit()
     {
         base.Exit();
-
+        comboCounter++;
+        lastTimeAttacked = Time.time;
+        player.StartCoroutine("BusyFor");
     }
     public override void Update(){
         base.Update();

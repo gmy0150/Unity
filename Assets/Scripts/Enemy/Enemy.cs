@@ -42,10 +42,10 @@ public class Enemy : MonoBehaviour
         if(enemyType != Type.elite){
             particle.SetActive(false);
             curShiled = 0;
-            healthbar.UpdateShieldBar(curShiled,maxShiled);
+            // healthbar.UpdateShieldBar(curShiled,maxShiled);
         }
         
-        healthbar = GetComponentInChildren<HealthBarUI>();
+        // healthbar = GetComponentInChildren<HealthBarUI>();
         
     }
     void Awake(){
@@ -59,8 +59,8 @@ public class Enemy : MonoBehaviour
         Invoke("Think",5);
     }
     void Update(){
-        Vector2 direction = player.transform.position - transform.position;
-        movement = new Vector2(Mathf.Sign(direction.x),Mathf.Sign(direction.y));
+        // Vector2 direction = player.transform.position - transform.position;
+        // movement = new Vector2(Mathf.Sign(direction.x),Mathf.Sign(direction.y));
         if(checktimer)
             timer += Time.deltaTime;
 
@@ -315,8 +315,8 @@ public class Enemy : MonoBehaviour
             mesh.color = Color.red;
         yield return new WaitForSeconds(0.1f);
         
-        healthbar.UpdateHealthBar(curHelath,maxHealth);
-        healthbar.UpdateShieldBar(curShiled,maxShiled);
+        // healthbar.UpdateHealthBar(curHelath,maxHealth);
+        // healthbar.UpdateShieldBar(curShiled,maxShiled);
         if(curHelath > 0){
             foreach(SpriteRenderer mesh in sprite){
                 mesh.color = Color.white;
@@ -342,7 +342,7 @@ public class Enemy : MonoBehaviour
             curHelath -= damageAmount;
         }
         
-        StartCoroutine(OnDamage(Vector3.zero)); // OnDamage 함수를 호출하여 피해를 입힙니다.
+        StartCoroutine(OnDamage(Vector3.zero)); // OnDamage 함수로 데미지 입은 모습을 표현 함
     }
 
     public void Damged(string ani)
