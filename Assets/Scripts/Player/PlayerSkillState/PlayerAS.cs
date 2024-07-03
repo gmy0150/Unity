@@ -20,6 +20,7 @@ public class PlayerAS : PlayerSkillState
     }
     public override void Update(){
         base.Update();
+        player.rigid.velocity = Vector2.zero;
         if(!player.isAS)
             stateMachine.ChangeState(player.idleState);
     }

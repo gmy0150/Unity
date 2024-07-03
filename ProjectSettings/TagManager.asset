@@ -17,6 +17,7 @@ TagManager:
   - RockEnd
   - BossDMG
   - Bosslaser
+  - DownPlatform
   layers:
   - Default
   - TransparentFX
@@ -33,7 +34,7 @@ TagManager:
   - DeadEnemy
   - 
   - 
-  - 
+  - NoFloor
   - 
   - 
   - 

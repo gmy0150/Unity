@@ -15,5 +15,12 @@ public class PlayerStateMachine : MonoBehaviour
         currentState = _newState;
         currentState.Enter();
     }
+    public bool GetState(PlayerState _thisState){
+        if(_thisState == currentState){
+            return true;
+        }
+        else
+            return false;
+    }
 
 } 

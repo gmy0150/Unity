@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Windows.Speech;
 
 public class TPlayer : MonoBehaviour
 {
@@ -8,22 +9,37 @@ public class TPlayer : MonoBehaviour
     public float moveSpeed = 8f;
     public float jumpforce;
     public float atkspeed;
+    static bool SkillADUsed;
+    static bool SkillASDUsed;
+    static bool SkillSDUsed;
+    static bool SkillASUsed;
+    static bool DashUsed;
 
     [Header("count")]
-    
+
     public int attackACount;
     public float ComboTimer;
     public float SkillADCool;
     public float SkillSDCool;
     public float SkillASCool;
     public float SkillASDCool;
-    public float lastskillad;
-    public float lastskillsd;
-    public float lastskillas;
-    public float lastskillasd;
+    public float DashCool;
+
+    public static float lastskillad;
+    public static float lastskillsd;
+    public static float lastskillas;
+    public static float lastskillasd;
+    public static float lastDashTime;
     float targetTime = -Mathf.Infinity;
+    float SDtimer = 0;
     public List<Enemy> enemies = new List<Enemy>();
 
+    private float dashTimeLeft;
+    private float lastDash = -100f;
+    public float dashTime;
+    private float lastImageXpos;
+    public float dashSpeed;
+    public float distanceBetweenImages;
 
     [Header("Collision info")]
     [SerializeField]private Transform groundCheck;
@@ -50,6 +66,7 @@ public class TPlayer : MonoBehaviour
     public PlayerMoveState moveState{get;private set;}
     public PlayerJumpState jumpState{get;private set;}
     public PlayerAirState airState{get;private set;}
+    public PlayerDashState dashState{get;private set;}
     // public PlayerAttackState attackState{get; private set;}
     public PlayerAttackA attackAState{get; private set;}
     public PlayerAttackS attackSState{get; private set;}
@@ -61,7 +78,7 @@ public class TPlayer : MonoBehaviour
     [SerializeField]private GameObject SkillObj;
 
     LineRenderer lineRenderer;
-    float rayDelay = 2.0f;
+    float rayDelay = 0.5f;
     float lineLength  = 5.0f;
     [SerializeField]private GameObject playerPrefab;
 
@@ -80,6 +97,7 @@ public class TPlayer : MonoBehaviour
         attackAState = new PlayerAttackA(this, stateMachine, "AttackA");
         attackSState = new PlayerAttackS(this, stateMachine, "AttackS");
         attackDState = new PlayerAttackD(this, stateMachine, "AttackD");
+        dashState = new PlayerDashState(this, stateMachine);
         skillAD = new PlayerAD(this,stateMachine);
         skillAS = new PlayerAS(this,stateMachine);
         skillSD = new PlayerSD(this,stateMachine);
@@ -90,7 +108,6 @@ public class TPlayer : MonoBehaviour
         foreach (Enemy enemy in allEnemies) {
             enemies.Add(enemy);
         }
-
     }
 
     private void Start() {
@@ -137,6 +154,31 @@ public class TPlayer : MonoBehaviour
             Flip();
         }
     }
+    public void AttemptToDash(){
+        dashTimeLeft = dashTime;
+        lastDash = Time.time;
+
+        PlayerAfterImgPool.Instance.GetFromPool();
+        lastImageXpos = transform.position.x;
+    }
+    public void CheckDash(){
+        if(dashTimeLeft > 0){
+                 
+            rigid.velocity = new Vector2(-dashSpeed * facingDir ,0f);
+            dashTimeLeft -= Time.deltaTime;
+
+            if(Mathf.Abs(transform.position.x - lastImageXpos) > distanceBetweenImages){
+                PlayerAfterImgPool.Instance.GetFromPool();
+                
+                lastImageXpos = transform.position.x;
+            }
+        }
+        if(dashTimeLeft <= 0 || checkWallAhead()){
+            rigid.velocity = Vector2.zero;
+            stateMachine.ChangeState(idleState);
+            }
+        }
+    
     public void detailAD(){
         for(int i = 0; i< 8;i++){
             Vector3 bulletPosition = transform.position + transform.right;
@@ -156,61 +198,64 @@ public class TPlayer : MonoBehaviour
             
             yield return null;
         }
-
     }
     public void SDSkill(){
+
         StartCoroutine(detailSD());
     }
     private IEnumerator detailSD(){
         yield return new WaitForSeconds(0.1f);
-        rigid.AddForce(Vector2.left * 10f * facingDir, ForceMode2D.Impulse);
 
-        
-        // maxSpeed *= 2;
-
-        targetTime = Time.time;
+        SDtimer += Time.deltaTime;
         while(!checkWallAhead()){
-            
-            if(skillsdTime()){
-                break;
-            }
-            
+            rigid.velocity = new Vector2(facingDir * -20f,rigid.velocity.y);
             RaycastHit2D hit =Physics2D.Raycast(transform.position, 
             transform.right, AttackRange,LayerMask.GetMask("Enemy"));
             if(hit.collider != null){
                 Enemy hits = hit.collider.GetComponent<Enemy>();
                 if(hits!=null){
-                    // Collider2D collider = hits.GetComponent<Collider2D>();
                     hits.isEnter = true;
-                    // collider.isTrigger = true;1
                     hits.transform.position = transform.position;
                 }
             }
+            if(skillsdTime()){
+                break;
+            }
             foreach (Enemy enemy in enemies){
                 if (enemy != null && enemy.isEnter){
-                    Debug.Log("반응 체크");
                     Collider2D collider = enemy.GetComponent<Collider2D>();
                     Transform enemyTransform = enemy.transform;
                     enemyTransform.SetParent(transform);
                     collider.isTrigger = true;
                     enemy.rigid.isKinematic = true;
+                    if(!enemy.touchSD){
+                        enemy.TakeDamage(10);
+                        enemy.touchSD = true;
+                    }
                 }
             }
-            
-            yield return new WaitUntil(() => checkWallAhead()||skillsdTime()||checkbossAhead());
-
+            yield return new WaitUntil(() => checkWallAhead()||skillsdTime());
         }
+        yield return new WaitForSeconds(0.2f);
         foreach (Enemy enemy in enemies){
             if (enemy != null && enemy.isEnter){
                 Transform enemyTransform = enemy.transform;
-                enemyTransform.SetParent(null);
                 Collider2D collider = enemy.GetComponent<Collider2D>();
+                enemyTransform.SetParent(null);
                 collider.isTrigger = false;
                 enemy.rigid.isKinematic = false;
                 enemy.isEnter = false;
+                if(!enemy.nottouchsd){
+                    enemy.TakeDamage(5);
+                    enemy.nottouchsd = true;
+                }
+                yield return new WaitForSeconds(0.2f);
+                enemy.offtouch();
             }
         }
-    
+        rigid.velocity = Vector2.zero;
+        stateMachine.ChangeState(idleState);
+        SDtimer = 0;
     }
     bool checkbossAhead() {
         float direction = Mathf.Sign(transform.localScale.x); // 플레이어의 방향을 구함
@@ -219,7 +264,18 @@ public class TPlayer : MonoBehaviour
         RaycastHit2D rayHit = Physics2D.Raycast(raycastStart, Vector2.right * facingDir, 1, LayerMask.GetMask("Wall")|LayerMask.GetMask("Boss"));
 
         return (rayHit.collider != null);
-
+    }
+    public void checkDownPlatform() {
+        RaycastHit2D rayHit = Physics2D.Raycast(groundCheck.position, Vector2.down * 0.5f, 1, LayerMask.GetMask("Floor"));
+        Debug.DrawRay(groundCheck.position, Vector2.down * 0.5f, Color.blue);
+        if(rayHit.collider != null){
+            if(rayHit.collider.CompareTag("DownPlatform")){
+                DownPlatform downPlatform = rayHit.collider.GetComponent<DownPlatform>();
+                if(downPlatform != null){
+                    downPlatform.ChangeLayer();
+                }
+            }
+        }
     }
     bool CheckEnter(){
         foreach (Enemy enemy in enemies){
@@ -230,7 +286,7 @@ public class TPlayer : MonoBehaviour
         return false;
     }
     bool skillsdTime() {
-        if (Time.time - targetTime >= 1.5f) { 
+        if (SDtimer >= 1.5f) { 
             return true;
         } else {
             return false;
@@ -238,7 +294,8 @@ public class TPlayer : MonoBehaviour
     }    
     public bool CoolTime(string cool){
         if(cool == "SkillAD"){
-            if(Time.time >lastskillad + SkillADCool){
+            if(!SkillADUsed||Time.time >lastskillad + SkillADCool){
+                SkillADUsed = true;
                 lastskillad = Time.time;
                 Debug.Log("확인");
                 return true;
@@ -246,14 +303,16 @@ public class TPlayer : MonoBehaviour
                 return false;
             }
         }else if(cool == "SkillSD"){
-            if(Time.time >lastskillsd + SkillSDCool){
+            if(!SkillSDUsed||Time.time >lastskillsd + SkillSDCool){
+                SkillSDUsed = true;
                 lastskillsd = Time.time;
                 return true;
             }else{
                 return false;
             }
         }else if(cool == "SkillAS"){
-            if(Time.time >lastskillas + SkillADCool){
+            if(!SkillASUsed||Time.time >lastskillas + SkillADCool){
+                SkillASUsed = true;
                 lastskillas = Time.time;
 
                 return true;
@@ -261,8 +320,17 @@ public class TPlayer : MonoBehaviour
                 return false;
             }
         }else if(cool == "SkillASD"){
-            if(Time.time >lastskillasd + SkillASDCool){
+            if(!SkillASDUsed||Time.time >lastskillasd + SkillASDCool){
+                SkillASDUsed = true;
                 lastskillasd = Time.time;
+                return true;
+            }else{
+                return false;
+            }
+        }else if(cool == "Dash"){
+            if(!DashUsed||Time.time >lastDashTime + DashCool){
+                DashUsed = true;
+                lastDashTime = Time.time;
                 return true;
             }else{
                 return false;
@@ -272,6 +340,7 @@ public class TPlayer : MonoBehaviour
         }
     }
     public void detailAS(){
+
         isAS = true;
         lineRenderer.startWidth = 1f;
         lineRenderer.endWidth = 1f;
@@ -294,8 +363,15 @@ public class TPlayer : MonoBehaviour
 
         Vector3 rayOrigin = startPos;
 
-
+        RaycastHit2D hits = Physics2D.Raycast(rayOrigin, rayDirection, lineLength, LayerMask.GetMask("Enemy"));
+        if(hits.collider != null){
+            Enemy hit = hits.collider.GetComponent<Enemy>();
+            if(hit != null){
+                hit.TakeDamage(15);
+            }
+        }
         Debug.DrawRay(rayOrigin, rayDirection * lineLength, Color.blue, 0.5f);
+
         isAS = false;
     }
 
@@ -316,20 +392,12 @@ public class TPlayer : MonoBehaviour
         }else{
             Debug.Log("skillobj가 없음");
         }
-
-        // Destroy(bullet,5);
     }
     IEnumerator detailASD(){
         bool hasTime = false;
         targetTime = Time.time;
         yield return new WaitForSeconds(0.3f);
-        // foreach (Enemy enemy in enemies){
-        //     StartCoroutine(SkillCheck(enemy));
-        // }
-        Debug.Log("1");
         yield return new WaitUntil(() => CheckEnter()||skilalsdTime()||checkWallAhead());
-        Debug.Log("2");
-
         foreach (Enemy enemy in enemies)
         {
             if (enemy != null && enemy.isEnter){
@@ -339,18 +407,12 @@ public class TPlayer : MonoBehaviour
                 Vector3 targetPosition = enemyTransform.position - enemyTransform.forward * 2; // 적의 위치에서 앞으로 2만큼 떨어진 곳으로 설정
                 GameObject playerClone = Instantiate(playerPrefab, targetPosition, Quaternion.identity);
                 Destroy(gameObject);
-                enemy.TakeDamage(100);
-                // enemy.isEnter = false;
+                enemy.TakeDamage(50);
+                enemy.isEnter = false;
             }
         }
-        if(!hasTime){
-        // StartCoroutine("skillASDTimes");
-        // StartCoroutine("ResetSkillCool");
-        yield break;
-        }
-        
-        // StartCoroutine("skillASDTimes");
-        // StartCoroutine("ResetSkillCool");
+        if(!hasTime)
+            yield break;
         }
     
     bool skilalsdTime() {

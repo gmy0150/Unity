@@ -120,7 +120,6 @@ public class Boss : MonoBehaviour
         BossRockPool.Instance.AddToPool(drop);
     }
     IEnumerator SadPattern2() {
-
         GameObject effect = BossEffectPool.Instance.GetSadPattern2();
         effect.transform.position = new Vector3(effect.transform.position.x,-2.5f,0);
         yield return new WaitForSeconds(2f); 

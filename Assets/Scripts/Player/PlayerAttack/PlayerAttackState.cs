@@ -30,10 +30,7 @@ public class PlayerAttackState : PlayerState
     }
     public override void Update(){
         base.Update();
-        if(Input.GetKey(KeyCode.A)&&Input.GetKey(KeyCode.D)&&Input.GetKey(KeyCode.S)&&player.IsGroundDetected()&&player.CoolTime("SkillASD")){
-            Debug.Log("??");
-            stateMachine.ChangeState(player.skillASD);
-        }
+
         StopA();
     }
     void StopA(){
@@ -49,7 +46,6 @@ public class PlayerAttackState : PlayerState
     void CheckAttack(){
         RaycastHit2D hit =Physics2D.Raycast(player.transform.position, player.transform.right, player.AttackRange,enemyLayer);
         if(hit.collider != null){
-            Debug.Log("hit"+ hit.transform.name);
             Enemy  enemy = hit.transform.GetComponent<Enemy>();
             if(enemy != null){
                 if(sword)

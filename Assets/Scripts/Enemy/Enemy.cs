@@ -10,7 +10,8 @@ public class Enemy : MonoBehaviour
     [SerializeField]private int maxHealth = 100;
     [SerializeField]private GameObject ArrowObj;
     public int ArrowDMG = 10;
-    
+    public bool touchSD = false;
+    public bool nottouchsd = false;
     [SerializeField]private int curHelath;
     [SerializeField]private int maxShiled = 100;
     [SerializeField] private int curShiled;
@@ -155,11 +156,11 @@ public class Enemy : MonoBehaviour
         
 
     }
-    // void OnDrawGizmos(){
+    public void offtouch(){
+        touchSD = false;
+        nottouchsd = false;
+    }
 
-    //     float castDistance = 1f;  
-    //     Vector2 castDir = transform.localScale.x > 0 ? Vector2.right : Vector2.left;
-    // }
 
     void Think(){
         nextMove = Random.Range(-1,2);
@@ -322,10 +323,10 @@ public class Enemy : MonoBehaviour
                 mesh.color = Color.white;
                 reactVec = reactVec.normalized;
                 rigid.AddForce(reactVec * 5, ForceMode2D.Impulse);
-                Debug.Log(curHelath);
             }
         }
         else{
+            Debug.Log(curHelath);
             foreach(SpriteRenderer mesh in sprite)
             mesh.color = Color.gray;
             gameObject.layer = 12;
@@ -336,10 +337,11 @@ public class Enemy : MonoBehaviour
     
     public void TakeDamage(int damageAmount)
     {
-        if(curShiled >= 0){
+        if(curShiled > 0){
             curShiled -= damageAmount;
         }else{
             curHelath -= damageAmount;
+            
         }
         
         StartCoroutine(OnDamage(Vector3.zero)); // OnDamage 함수로 데미지 입은 모습을 표현 함
@@ -383,6 +385,9 @@ public class Enemy : MonoBehaviour
         StartCoroutine(OnDamage(Vector3.zero)); // OnDamage 함수를 호출하여 피해를 입힙니다.
 
     }
+    public int getHP(){
+        return curHelath;
+    }
     public IEnumerator skillDmg()
     {
         yield return new WaitForSeconds(0.1f);
@@ -391,6 +396,7 @@ public class Enemy : MonoBehaviour
     }
     void Die()
     {
+        Debug.Log("삭제?");
         Destroy(gameObject);
     }
     

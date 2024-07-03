@@ -4,16 +4,16 @@ using UnityEngine;
 
 public class PlayerGroundState : PlayerState
 {
-    private float keyDelay = 0.02f;
+    private float keyDelay = 0.03f;
     private float APressTime = -1f;
     private float SPressTime = -1f;
     private float DPressTime = -1f;
     private bool isAPressed = false;
     private bool isSPressed = false;
     private bool isDPressed = false;
-    private float delayA = 0.02f;
-    private float delayS = 0.02f;
-    private float delayD = 0.02f;
+    private float delayA = 0.04f;
+    private float delayS = 0.04f;
+    private float delayD = 0.04f;
     bool skillAD;
     bool skillAS;
     bool skillSD;
@@ -35,11 +35,14 @@ public class PlayerGroundState : PlayerState
     {
         base.Update();
         float currentTime = Time.time;
-        if(Input.GetKeyDown(KeyCode.Space)&&player.IsGroundDetected()){
+        if(Input.GetKeyDown(KeyCode.Space)&&!Input.GetKey(KeyCode.DownArrow)&&player.IsGroundDetected()){
             stateMachine.ChangeState(player.jumpState);
         }
         if(!Input.GetKeyDown(KeyCode.Space)&&!player.IsGroundDetected()){
             stateMachine.ChangeState(player.airState);
+        }
+        if(Input.GetKeyDown(KeyCode.Space)&&Input.GetKey(KeyCode.DownArrow)){
+            player.checkDownPlatform();
         }
         if(Input.GetKeyDown(KeyCode.A)){
             APressTime = currentTime;
@@ -54,29 +57,25 @@ public class PlayerGroundState : PlayerState
             isDPressed = true;
         }
         if(
-        CheckKeyPressed(APressTime,SPressTime, DPressTime, keyDelay)){
+        CheckKeyPressed(APressTime,SPressTime, DPressTime, keyDelay)&&player.CoolTime("SkillASD")){
             stateMachine.ChangeState(player.skillASD);
-            Debug.Log("테스트");
             skillASD = true;
             ResetKeyPressTimes();
         }
         else if(
-        CheckKeyPressed(APressTime, DPressTime, keyDelay)&&!skillASD){
+        CheckKeyPressed(APressTime, DPressTime, keyDelay)&&!skillASD&&player.CoolTime("SkillAD")){
             stateMachine.ChangeState(player.skillAD);
             skillAD = true;
-            Debug.Log("테스트");
             ResetKeyPressTimes();
         }else if(
-        CheckKeyPressed(APressTime, SPressTime, keyDelay)&&!skillASD&&!skillAD){
+        CheckKeyPressed(APressTime, SPressTime, keyDelay)&&!skillASD&&!skillAD&&player.CoolTime("SkillAS")){
             stateMachine.ChangeState(player.skillAS);
             skillAS = true;
-            Debug.Log("테스트");
             ResetKeyPressTimes();
         }else if(
-        CheckKeyPressed(SPressTime, DPressTime, keyDelay)&&!skillASD&&!skillAD&&!skillAS){
+        CheckKeyPressed(SPressTime, DPressTime, keyDelay)&&!skillASD&&!skillAD&&!skillAS&&player.CoolTime("SkillSD")){
             stateMachine.ChangeState(player.skillSD);
             skillSD = true;
-            Debug.Log("테스트");
             ResetKeyPressTimes();
         }
         else{
@@ -94,7 +93,7 @@ public class PlayerGroundState : PlayerState
                 isDPressed = false;
             }if(isSPressed && currentTime - SPressTime >= delayS){
                 if(player.IsGroundDetected()){
-                    stateMachine.ChangeState(player.attackSState);
+                    // stateMachine.ChangeState(player.attackSState);
 
                 }
                 isSPressed = false;

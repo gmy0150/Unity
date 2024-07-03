@@ -544,6 +544,8 @@ public class Player : MonoBehaviour{
         maxSpeed *= 2;
         Debug.Log(maxSpeed);
         targetTime = Time.time;
+        Debug.Log("target"+targetTime);
+        Debug.Log("Time"+Time.time);
         while(!checkWallAhead()){
             if(skillsdTime()){
                 break;

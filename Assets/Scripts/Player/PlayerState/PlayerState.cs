@@ -38,7 +38,9 @@ public class PlayerState
         if(!isATK)
             xInput = Input.GetAxisRaw("Horizontal");
         player.anim.SetFloat("yVelocity",rb.velocity.y);
-
+        if(Input.GetKeyDown(KeyCode.LeftShift)&&player.CoolTime("Dash")){
+            stateMachine.ChangeState(player.dashState);
+        }
     }
     public virtual void Exit(){
         player.anim.SetBool(animBoolName,false);
