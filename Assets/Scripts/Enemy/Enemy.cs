@@ -316,8 +316,8 @@ public class Enemy : MonoBehaviour
             mesh.color = Color.red;
         yield return new WaitForSeconds(0.1f);
         
-        // healthbar.UpdateHealthBar(curHelath,maxHealth);
-        // healthbar.UpdateShieldBar(curShiled,maxShiled);
+        healthbar.UpdateHealthBar(curHelath,maxHealth);
+        healthbar.UpdateShieldBar(curShiled,maxShiled);
         if(curHelath > 0){
             foreach(SpriteRenderer mesh in sprite){
                 mesh.color = Color.white;
