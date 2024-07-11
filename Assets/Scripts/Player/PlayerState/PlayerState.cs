@@ -17,6 +17,9 @@ public class PlayerState
     private string animBoolName;
     protected bool triggerCalled;
     protected bool moveTrigger;
+    static string temp;
+    static int stunoff = 0;
+
     public PlayerState(TPlayer _player,PlayerStateMachine _stateMachine, string _animBoolName){
         this.player = _player;
         this.stateMachine = _stateMachine;
@@ -28,7 +31,7 @@ public class PlayerState
     }
     public virtual void Enter(){
         if(animBoolName != null)
-        player.anim.SetBool(animBoolName,true);
+            player.anim.SetBool(animBoolName,true);
         rb = player.rigid;
         triggerCalled = false;
         moveTrigger = false;
@@ -39,11 +42,16 @@ public class PlayerState
             xInput = Input.GetAxisRaw("Horizontal");
         player.anim.SetFloat("yVelocity",rb.velocity.y);
         if(Input.GetKeyDown(KeyCode.LeftShift)&&player.CoolTime("Dash")){
-            stateMachine.ChangeState(player.dashState);
+            temp = animBoolName;
+            stateMachine.DashState(player.dashState);
         }
     }
     public virtual void Exit(){
-        player.anim.SetBool(animBoolName,false);
+        if(animBoolName != null){
+            player.anim.SetBool(animBoolName,false);
+        }else{
+            player.anim.SetBool(temp,false);
+        }
     }
     public virtual void AnimationFinsihTrigger(){
         triggerCalled = true;

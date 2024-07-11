@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.Windows.Speech;
 
 public class TPlayer : MonoBehaviour
@@ -16,6 +17,7 @@ public class TPlayer : MonoBehaviour
     static bool DashUsed;
 
     [Header("count")]
+    bool atkdmg = false;
 
     public int attackACount;
     public float ComboTimer;
@@ -24,7 +26,7 @@ public class TPlayer : MonoBehaviour
     public float SkillASCool;
     public float SkillASDCool;
     public float DashCool;
-
+    int count;
     public static float lastskillad;
     public static float lastskillsd;
     public static float lastskillas;
@@ -32,14 +34,13 @@ public class TPlayer : MonoBehaviour
     public static float lastDashTime;
     float targetTime = -Mathf.Infinity;
     float SDtimer = 0;
-    public List<Enemy> enemies = new List<Enemy>();
-
     private float dashTimeLeft;
     private float lastDash = -100f;
     public float dashTime;
     private float lastImageXpos;
     public float dashSpeed;
     public float distanceBetweenImages;
+    public List<Enemy> enemies = new List<Enemy>();
 
     [Header("Collision info")]
     [SerializeField]private Transform groundCheck;
@@ -58,7 +59,10 @@ public class TPlayer : MonoBehaviour
     public Animator anim{get; private set;}
     public Rigidbody2D rigid{get;private set;}
     #endregion
-
+    #region HP
+    public int curHP;
+    public int maxHP;
+    #endregion
     #region States
 
     public PlayerStateMachine stateMachine {get;private set;}
@@ -67,7 +71,6 @@ public class TPlayer : MonoBehaviour
     public PlayerJumpState jumpState{get;private set;}
     public PlayerAirState airState{get;private set;}
     public PlayerDashState dashState{get;private set;}
-    // public PlayerAttackState attackState{get; private set;}
     public PlayerAttackA attackAState{get; private set;}
     public PlayerAttackS attackSState{get; private set;}
     public PlayerAttackD attackDState{get; private set;}
@@ -84,12 +87,12 @@ public class TPlayer : MonoBehaviour
 
     public bool isAS{get;private set;}
 
-
+    public bool isStun{get;private set;}
     #endregion
-    public float timer;
+    bool isAlive = true;
+    float timer;
     private void Awake() {
         stateMachine = new PlayerStateMachine();
-        
         idleState = new PlayerIdleState(this, stateMachine,"Idle");
         moveState = new PlayerMoveState(this, stateMachine,"Move");
         jumpState = new PlayerJumpState(this, stateMachine, "Jump");
@@ -103,7 +106,6 @@ public class TPlayer : MonoBehaviour
         skillSD = new PlayerSD(this,stateMachine);
         skillASD = new PlayerASD(this,stateMachine);
         lineRenderer = GetComponentInChildren<LineRenderer>();
-
         Enemy[] allEnemies = FindObjectsOfType<Enemy>();
         foreach (Enemy enemy in allEnemies) {
             enemies.Add(enemy);
@@ -114,10 +116,31 @@ public class TPlayer : MonoBehaviour
         anim = GetComponentInChildren<Animator>();
         rigid = GetComponent<Rigidbody2D>();
         stateMachine.Initalize(idleState);
+        curHP = maxHP;
     }
     private void Update() {
-        stateMachine.currentState.Update();
-        FlipController();
+        if(isAlive){
+            if(!isStun){
+                stateMachine.currentState.Update();
+            }else{
+                // stateMachine.ChangeState(idleState);
+                dostun();
+            }
+            FlipController();
+            if(curHP <= 0){
+                maxHP = 0;
+                isAlive = false;
+            }
+            if(atkdmg){
+                timer += Time.deltaTime;
+            }
+
+            if(atkdmg&&timer >= 3){
+                atkdmg = false;
+                timer = 0;
+            }
+        }
+
     }
     public IEnumerator BusyFor(){
         isBusy = true;
@@ -174,6 +197,8 @@ public class TPlayer : MonoBehaviour
             }
         }
         if(dashTimeLeft <= 0 || checkWallAhead()){
+            if(checkWallAhead())
+                Debug.Log("벽확인");
             rigid.velocity = Vector2.zero;
             stateMachine.ChangeState(idleState);
             }
@@ -423,11 +448,47 @@ public class TPlayer : MonoBehaviour
         }
     }
     bool checkWallAhead() {
+
         Vector2 raycastStart = rigid.position + Vector2.left * 1f * facingDir; 
 
         RaycastHit2D rayHit = Physics2D.Raycast(raycastStart, Vector2.left * facingDir, 1, LayerMask.GetMask("Wall")|LayerMask.GetMask("Boss"));
 
+
         return (rayHit.collider != null);
 
+    }
+
+    public void getDamage(int hp){
+        if(!atkdmg){
+            atkdmg = true;
+            curHP -= hp;
+        }
+        if(curHP <= 0){
+            isAlive = false;
+        }
+    }
+    public void getStun(){
+        isStun = true;
+        rigid.constraints = RigidbodyConstraints2D.FreezePositionY|RigidbodyConstraints2D.FreezeRotation;
+        rigid.velocity = Vector2.zero;
+        if(facingDir == 1){
+            Flip();
+        }
+    }
+    public void getStunoff(){
+        isStun = false;
+        rigid.constraints = RigidbodyConstraints2D.FreezeRotation;
+    }
+    void dostun(){
+        if(isStun){
+            if(Input.GetButtonDown("Horizontal")){
+                count++;
+                Debug.Log(count);
+            }
+            if(count >= 8){
+                getStunoff();
+                count = 0;
+            }
+        }
     }
 }

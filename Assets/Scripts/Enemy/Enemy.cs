@@ -26,12 +26,10 @@ public class Enemy : MonoBehaviour
     Vector2 movement;
     [SerializeField]private GameObject particle;
     SpriteRenderer spriteRenderer;
-    // Animator anim;
     BoxCollider2D boxCollider;
     public int nextMove;
     float timer;
     bool checktimer;
-    [SerializeField]private Detector attackpoint;
     Vector2 frontVec;
     public float fireRate = 2.0f;  
     private float nextFireTime = 0f;
@@ -43,13 +41,13 @@ public class Enemy : MonoBehaviour
         if(enemyType != Type.elite){
             particle.SetActive(false);
             curShiled = 0;
-            // healthbar.UpdateShieldBar(curShiled,maxShiled);
         }
+            healthbar.UpdateShieldBar(curShiled,maxShiled);
         
-        // healthbar = GetComponentInChildren<HealthBarUI>();
         
     }
     void Awake(){
+        healthbar = GetComponentInChildren<HealthBarUI>();
         rigid = GetComponent<Rigidbody2D>();
         sprite = GetComponentsInChildren<SpriteRenderer>();//MeshRenderer에서 material을 뽑아올 때는 소문자로 작성
         // anim = GetComponent<Animator>();
@@ -326,7 +324,6 @@ public class Enemy : MonoBehaviour
             }
         }
         else{
-            Debug.Log(curHelath);
             foreach(SpriteRenderer mesh in sprite)
             mesh.color = Color.gray;
             gameObject.layer = 12;
@@ -396,7 +393,6 @@ public class Enemy : MonoBehaviour
     }
     void Die()
     {
-        Debug.Log("삭제?");
         Destroy(gameObject);
     }
     

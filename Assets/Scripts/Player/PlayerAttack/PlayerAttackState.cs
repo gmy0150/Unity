@@ -26,7 +26,6 @@ public class PlayerAttackState : PlayerState
     {
         base.Exit();
         isATK = false;
-
     }
     public override void Update(){
         base.Update();
@@ -46,7 +45,7 @@ public class PlayerAttackState : PlayerState
     void CheckAttack(){
         RaycastHit2D hit =Physics2D.Raycast(player.transform.position, player.transform.right, player.AttackRange,enemyLayer);
         if(hit.collider != null){
-            Enemy  enemy = hit.transform.GetComponent<Enemy>();
+            Enemy enemy = hit.transform.GetComponent<Enemy>();
             if(enemy != null){
                 if(sword)
                     enemy.TakeDamage(10);

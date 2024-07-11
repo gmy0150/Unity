@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 public class PlayerMoveState : PlayerGroundState
@@ -19,11 +20,14 @@ public class PlayerMoveState : PlayerGroundState
     public override void Update()
     {
         base.Update();
+
         if(!isATK)
             player.SetVelocity(xInput * player.moveSpeed,rb.velocity.y);
 
         if(xInput == 0&&!player.isBusy){
             stateMachine.ChangeState(player.idleState);
         }
+        
+        
     } 
 }

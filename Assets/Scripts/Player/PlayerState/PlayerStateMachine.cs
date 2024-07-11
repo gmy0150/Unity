@@ -15,6 +15,10 @@ public class PlayerStateMachine : MonoBehaviour
         currentState = _newState;
         currentState.Enter();
     }
+    public void DashState(PlayerState _newState){
+        currentState = _newState;
+        currentState.Enter();
+    }
     public bool GetState(PlayerState _thisState){
         if(_thisState == currentState){
             return true;

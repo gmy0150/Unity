@@ -18,6 +18,7 @@ TagManager:
   - BossDMG
   - Bosslaser
   - DownPlatform
+  - HealthBar
   layers:
   - Default
   - TransparentFX

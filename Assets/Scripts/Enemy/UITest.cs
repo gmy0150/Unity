@@ -10,7 +10,7 @@ public class UITest : MonoBehaviour
     void Start()
     {
         animator = GetComponentInChildren<Animator>();
-        if(animator!= null)
+        if(animator == null)
         Debug.Log("애니매이션 없음");
 
     }
@@ -27,14 +27,11 @@ public class UITest : MonoBehaviour
             animator.SetBool("anim",true);
         }
         else if(timer > 8){
-            animator.SetFloat("Blend",1f);
         }
         else if(timer > 5){
-            animator.SetFloat("Blend",0.5f);
         }
         else if(timer > 3){
-            animator.SetBool("UI",true);
-            animator.SetFloat("Blend",0f);
+
 
         }
     }

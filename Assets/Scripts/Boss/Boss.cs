@@ -10,6 +10,7 @@ public class Boss : MonoBehaviour
     [SerializeField]private GameObject rockStart;
     [SerializeField]private GameObject tlaser;
     [SerializeField]private GameObject laser;
+    TPlayer player;
     public int flooringdmg;
     BoxCollider2D sadFlooring;
     public float dropInterval = 3f;
@@ -18,24 +19,54 @@ public class Boss : MonoBehaviour
     public bool angerdoor = true;
     public bool saddoor = false;
     public bool happydoor = false;
+
+    bool isFloor;
     GameObject sadflooreffect;
     bool islaser;
     int lasery;
     float timer;
+    float dmgtimer;
     float pattern1timer;
     bool ispattern;
+    bool atk;
     public float transtimer = 0;
     public bool isRestrict;
     Rigidbody2D rigid;
+    private Vector2 boxCenter;
+    private Vector2 boxSize;
+    private void Awake() {
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<TPlayer>();
+        rigid = GetComponent<Rigidbody2D>();
+    }
+    private void Start() {
+        StartCoroutine(InitializeBoxCollider());
+        sadflooreffect.SetActive(false);
+    }
+    private IEnumerator InitializeBoxCollider()
+    {
+        sadflooreffect = BossEffectPool.Instance.GetfloorEffect();
+
+        sadflooreffect.transform.position = new Vector3(rockStart.transform.position.x, -2.5f, 0);
+        yield return new WaitForSeconds(1f);
+
+        sadFlooring = sadflooreffect.GetComponent<BoxCollider2D>();
+        ParticleSystem sadFlooreff = sadFlooring.GetComponent<ParticleSystem>();
+        sadFlooring.enabled = true;
+
+        boxCenter = sadFlooring.bounds.center;
+        boxSize = sadFlooring.size;
+        // boxSize = sadFlooreff.shape.sca
+        // boxSize = sadFlooring.size;
+    }
     void Update() {
         timer += Time.deltaTime;
         transtimer += Time.deltaTime;
         if(angerdoor){
-                if(!islaser){
+            if(!islaser){
                 pattern1timer += Time.deltaTime;
                 }
             if(pattern1timer >= laserinterval){
-                    StartCoroutine("Laser");
+                StartCoroutine("Laser");
                 pattern1timer = 0;
             }
             if(timer >= dropInterval){   
@@ -43,7 +74,7 @@ public class Boss : MonoBehaviour
                 StartCoroutine(DropWithEffect(dropPosition));
                 timer = 0;
             }
-            if(transtimer > 60){
+            if(transtimer > 5){
                 saddoor = true;
                 angerdoor = false;
                 happydoor = false;
@@ -51,11 +82,16 @@ public class Boss : MonoBehaviour
             }
         }
         if(saddoor){
+            if(isFloor)
+                DrawBox();
             if(timer > 5f){
-                Vector3 droppos = rockStart.transform.position;
-                droppos.y = 0;
-                StartCoroutine(sadfloor(droppos));
-                timer = 0;
+                if(!isFloor){
+                    Vector3 droppos = rockStart.transform.position;
+                    droppos.y = 0;
+                    StartCoroutine(sadfloor(droppos));
+                    // timer = 0;
+                    isFloor = true;
+                }
             }
             if(!ispattern){
                 pattern1timer += Time.deltaTime;
@@ -73,9 +109,7 @@ public class Boss : MonoBehaviour
             // }
         }
     }
-    private void Awake() {
-        rigid = GetComponent<Rigidbody2D>();
-    }
+
     public void patternoff(){
         ispattern = false;
         isRestrict = false;
@@ -87,26 +121,58 @@ public class Boss : MonoBehaviour
         pattern1timer = 0;
         if(y == 0){
             lasery = -1;
-            tlaser.transform.position = new Vector3(tlaser.transform.position.x,lasery,0); 
+            tlaser.transform.position = new Vector3(tlaser.transform.position.x,lasery,0);
         }
         if(y == 1){
             lasery = 2;
             tlaser.transform.position = new Vector3(tlaser.transform.position.x,lasery,0); 
-        }
+            }
+        
         if(y == 2){
             lasery = 5;
             tlaser.transform.position = new Vector3(tlaser.transform.position.x,lasery,0); 
+            
         }
+
         tlaser.SetActive(true);
         yield return new WaitForSeconds(2f);
         tlaser.SetActive(false);
         laser.transform.position = new Vector3(laser.transform.position.x,lasery,0);
-        rigid.AddForce(transform.position.normalized);
+        
         laser.SetActive(true);
-        yield return new WaitForSeconds(1f);
+        float laserDuration = 2f; 
+        float elapsedTime = 0f;
+
+        while (elapsedTime < laserDuration)
+        {
+            RaycastHit2D hit =Physics2D.Raycast(laser.transform.position, 
+            -laser.transform.right, 10f,LayerMask.GetMask("Player"));
+            if(hit.collider != null){
+                player = hit.collider.GetComponent<TPlayer>();
+                if(player!=null){
+                    if(!atk){
+                        Debug.Log("확인");
+                        player.getDamage(laserDmg);
+                        atk = true;
+                    }
+                }
+            }
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
         laser.SetActive(false);
         pattern1timer = 0;
         islaser = false;
+        atk = false;
+    }
+
+    private void OnDrawGizmos() {
+        Vector2 rayOrigin = tlaser.transform.position;
+        Vector2 rayDirection = -tlaser.transform.right;
+
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(rayOrigin, rayOrigin + rayDirection * 10f);
+    
     }
     IEnumerator DropWithEffect(Vector3 position) {
         GameObject effect = BossEffectPool.Instance.GetEffect();
@@ -120,14 +186,13 @@ public class Boss : MonoBehaviour
         BossRockPool.Instance.AddToPool(drop);
     }
     IEnumerator SadPattern2() {
-        GameObject effect = BossEffectPool.Instance.GetSadPattern2();
-        effect.transform.position = new Vector3(effect.transform.position.x,-2.5f,0);
-        yield return new WaitForSeconds(2f); 
-        BossEffectPool.Instance.ReturnSadPattern2();
-        Player player = GameObject.FindWithTag("Player").GetComponent<Player>();
-        player.bossskill = true;
+        // GameObject effect = BossEffectPool.Instance.GetSadPattern2();
+        // effect.transform.position = new Vector3(effect.transform.position.x,-2.5f,0);
+        // yield return new WaitForSeconds(2f); 
+        // BossEffectPool.Instance.ReturnSadPattern2();
+        player = GameObject.FindGameObjectWithTag("Player").GetComponentInParent<TPlayer>();
+        // player.bossskill = true;
         isRestrict = true;
-        
         yield return new WaitForSeconds(0.3f); 
 
         // GameObject drop = BossRockPool.Instance.GetFromPool();
@@ -150,14 +215,35 @@ public class Boss : MonoBehaviour
         return rockStart.transform.position;
     }
     IEnumerator sadfloor(Vector3 position){
-        sadflooreffect = BossEffectPool.Instance.GetfloorEffect();
-        sadflooreffect.transform.position = new Vector3(position.x,-2.5f,0);
+        sadflooreffect.SetActive(true);
+        
+        // sadflooreffect = BossEffectPool.Instance.GetfloorEffect();
+        // sadflooreffect.transform.position = new Vector3(position.x,-2.5f,0);
         yield return new WaitForSeconds(1f);
-        sadFlooring = sadflooreffect.GetComponent<BoxCollider2D>();
-        sadFlooring.enabled = true;
-
+        // sadFlooring = sadflooreffect.GetComponent<BoxCollider2D>();
+        // sadFlooring.enabled = true;
         if(transtimer >= 16f){
-            Debug.Log("?");
         }
     }
+    private void DrawBox()
+    {
+        Vector2 topEdgeCenter = boxCenter + new Vector2(-boxSize.x/2, 0.5f);
+        Vector2 rayDirection = Vector2.right;
+        float rayDistance = 20;
+
+        RaycastHit2D hit = Physics2D.Raycast(topEdgeCenter, rayDirection, rayDistance);
+        Debug.DrawRay(topEdgeCenter, rayDirection * rayDistance, Color.red);
+
+        // Transform hitTransform = hit.transform;
+
+        if (hit.collider.CompareTag("Player"))
+        {
+            TPlayer player = hit.transform.GetComponentInParent<TPlayer>();
+        }
+        if(player != null ){
+            player.getDamage(5);
+        }
+
+    }
+    
 }

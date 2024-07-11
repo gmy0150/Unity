@@ -17,9 +17,9 @@ public class PlayerAfterImg : MonoBehaviour
     private SpriteRenderer playerSR;
     private Color color;
     private void OnEnable() {//객체가 활성화 되었을 때 사용 정확히 이 부분에 스크립트가 작동하면 시작되는 부분 PlayerAfterImgPool에서는 gameObject를 사용해서 불러옴
-        SR = GetComponent<SpriteRenderer>();//자기자신에게 있는 spriteRenderer를 가져옴
+        SR = GetComponentInChildren<SpriteRenderer>();//자기자신에게 있는 spriteRenderer를 가져옴
         player = GameObject.FindGameObjectWithTag("Player").transform;//플레이어에 위치정보를 가져옴
-        playerSR = player.GetComponent<SpriteRenderer>();//player에게 있는 spriteRenderer정보를 가져옴. 여기서 현재 플레이어의 모습을 가져와서 위에 SR에 저장후 불러내는 방식인듯
+        playerSR = player.GetComponentInChildren<SpriteRenderer>();//player에게 있는 spriteRenderer정보를 가져옴. 여기서 현재 플레이어의 모습을 가져와서 위에 SR에 저장후 불러내는 방식인듯
 
         alpha = alphaSet;//작동할 때 마다 항상 alpha값을 초기화해주는 부분
         SR.sprite = playerSR.sprite;//플레이어 이미지 정보를 SR에 저장

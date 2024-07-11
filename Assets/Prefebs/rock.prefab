@@ -211,7 +211,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98b9937f6e434744a881f8c01e38d178, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BossRockDmg: 100
+  BossRockDmg: 10
 --- !u!70 &6104473856014963915
 CapsuleCollider2D:
   m_ObjectHideFlags: 0

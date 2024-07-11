@@ -8,6 +8,11 @@ public class rock : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other) {
         if(other.tag == "RockEnd"){
             BossRockPool.Instance.AddToPool(gameObject);
+        }else if(other.tag == "Player"){
+            TPlayer player = GameObject.FindGameObjectWithTag("Player").GetComponentInParent<TPlayer>();
+            if(player !=null){
+                player.getDamage(BossRockDmg);
+            }
         }
     }
 }
