@@ -89,20 +89,20 @@ public class Player : MonoBehaviour{
         PlayerCurHP = PlayerMaxHP;
     }
     void Update() {
-        if(bossskill &&boss.isRestrict ){
-            rigid.constraints = RigidbodyConstraints2D.FreezePositionY|RigidbodyConstraints2D.FreezeRotation;
-            rigid.velocity = Vector2.zero;
-            transform.localScale = new Vector3(-1f, 1f, 1f);
-            if(Input.GetButtonDown("Horizontal")){
-                count++;
-            }
-            if(count >= 8){
-                bossskill = false;
-                rigid.constraints = RigidbodyConstraints2D.None|RigidbodyConstraints2D.FreezeRotation;
-                boss.patternoff();
-                count = 0;
-            }
-        }
+        // if(bossskill &&boss.isRestrict ){
+        //     rigid.constraints = RigidbodyConstraints2D.FreezePositionY|RigidbodyConstraints2D.FreezeRotation;
+        //     rigid.velocity = Vector2.zero;
+        //     transform.localScale = new Vector3(-1f, 1f, 1f);
+        //     if(Input.GetButtonDown("Horizontal")){
+        //         count++;
+        //     }
+        //     if(count >= 8){
+        //         bossskill = false;
+        //         rigid.constraints = RigidbodyConstraints2D.None|RigidbodyConstraints2D.FreezeRotation;
+        //         boss.patternoff();
+        //         count = 0;
+        //     }
+        // }
         // if(rigid.velocity.y < 0){
         //     if(anim.GetBool("isJump")){
         //         anim.SetBool("isJump",false);
@@ -213,9 +213,9 @@ public class Player : MonoBehaviour{
             isArrow = false;
             AtkCool("Arrow");
         }
-        else if(Input.GetButtonDown("Dash")&& !isDash&&!isDashCool&&!boss.isRestrict){
-            AttemptToDash();
-        }
+        // else if(Input.GetButtonDown("Dash")&& !isDash&&!isDashCool&&!boss.isRestrict){
+        //     AttemptToDash();
+        // }
     }
     void AttemptToDash(){
         isDashCool = true;

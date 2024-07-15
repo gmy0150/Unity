@@ -11,17 +11,27 @@ public class HealthBarUI : MonoBehaviour
     [SerializeField] private Slider backgroundSlider;
     [SerializeField] private Slider Shiledslider;
     [SerializeField] private GameObject Shiled;
+    bool delete;
     Animator animator;
     public float lerpSpeed = 1.0f;
     private void Awake() {
-        animator = Shiled.GetComponent<Animator>();   
+        animator = GetComponentInChildren<Animator>();
+        if(animator == null)
+        Debug.Log("애니매이션 없음");
     }
-
+    private void Start() {
+        
+    }
     public void destroyShield() {
-        animator.SetBool("anim",false);
-        Shiled.SetActive(false);
+        if(delete){
+            animator.SetBool("anim",false);
+            Shiled.SetActive(false);
+        }
     }
-
+    public float getHealth(){
+        Debug.Log(animator.transform.parent.parent.parent.name);
+        return Healthslider.value;
+    }
     public void UpdateHealthBar(float curHelath,float maxHealth){
         Healthslider.value = curHelath/maxHealth;
         SlowHP(curHelath / maxHealth);
@@ -41,7 +51,7 @@ public class HealthBarUI : MonoBehaviour
         if(Shiledslider.value == 0f){
             animator.SetBool("UI",false);
             animator.SetBool("anim",true);
-            
+            delete = true;
         }
     }
     void SlowHP(float hp){

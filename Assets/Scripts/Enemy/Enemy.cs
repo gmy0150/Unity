@@ -3,19 +3,15 @@ using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour
+public class Enemy : EnemyHP
 {
-    [SerializeField]private enum Type{melee,ranger,elite,Boss};
-    [SerializeField]private Type enemyType;
-    [SerializeField]private int maxHealth = 100;
+    // [SerializeField]private enum Type{melee,ranger,elite,Boss};
+    // [SerializeField]private Type enemyType;
     [SerializeField]private GameObject ArrowObj;
     public int ArrowDMG = 10;
     public bool touchSD = false;
     public bool nottouchsd = false;
-    [SerializeField]private int curHelath;
-    [SerializeField]private int maxShiled = 100;
-    [SerializeField] private int curShiled;
-    [SerializeField] HealthBarUI healthbar;
+    
     [SerializeField]private SpriteRenderer[] sprite;
     [SerializeField]private float speed;
     public bool isDead;
@@ -42,12 +38,9 @@ public class Enemy : MonoBehaviour
             particle.SetActive(false);
             curShiled = 0;
         }
-            healthbar.UpdateShieldBar(curShiled,maxShiled);
-        
-        
+        base.Start();
     }
     void Awake(){
-        healthbar = GetComponentInChildren<HealthBarUI>();
         rigid = GetComponent<Rigidbody2D>();
         sprite = GetComponentsInChildren<SpriteRenderer>();//MeshRenderer에서 material을 뽑아올 때는 소문자로 작성
         // anim = GetComponent<Animator>();
@@ -56,6 +49,7 @@ public class Enemy : MonoBehaviour
         // Think();
 
         Invoke("Think",5);
+        base.Awake();
     }
     void Update(){
         // Vector2 direction = player.transform.position - transform.position;
@@ -78,7 +72,7 @@ public class Enemy : MonoBehaviour
         }
     }
     void detectPlayer(){
-        Vector2 castDirection = transform.localScale.x > 0 ? Vector2.right : Vector2.left;
+        Vector2 castDirection = transform.localScale.x > 0 ? Vector2.left : Vector2.right;
         Vector2 Boxsize = new Vector2(5,1);
         RaycastHit2D rayed = Physics2D.BoxCast(frontVec,Boxsize,0f,castDirection,1f,LayerMask.GetMask("Player"));
         if (rayed.collider != null) {
@@ -131,7 +125,7 @@ public class Enemy : MonoBehaviour
     void OnDrawGizmos() {
         Vector3 boxSize = new Vector3(5, 1, 1);  
         float castDistance = 1f;  
-        Vector2 castDir = transform.localScale.x > 0 ? Vector2.right : Vector2.left;
+        Vector2 castDir = transform.localScale.x > 0 ? Vector2.left : Vector2.right;
 
         Gizmos.color = Color.red;
 
@@ -315,7 +309,8 @@ public class Enemy : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
         
         healthbar.UpdateHealthBar(curHelath,maxHealth);
-        healthbar.UpdateShieldBar(curShiled,maxShiled);
+        if(enemyType == Type.elite)
+            healthbar.UpdateShieldBar(curShiled,maxShiled);
         if(curHelath > 0){
             foreach(SpriteRenderer mesh in sprite){
                 mesh.color = Color.white;

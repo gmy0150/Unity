@@ -5,7 +5,7 @@ using System.Diagnostics.Tracing;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class Boss : MonoBehaviour
+public class Boss : EnemyHP
 {
     [SerializeField]private GameObject rockStart;
     [SerializeField]private GameObject tlaser;
@@ -26,21 +26,22 @@ public class Boss : MonoBehaviour
     int lasery;
     float timer;
     float dmgtimer;
-    float pattern1timer;
-    bool ispattern;
+    public static float pattern1timer;
     bool atk;
     public float transtimer = 0;
-    public bool isRestrict;
     Rigidbody2D rigid;
     private Vector2 boxCenter;
     private Vector2 boxSize;
     private void Awake() {
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<TPlayer>();
         rigid = GetComponent<Rigidbody2D>();
+        base.Awake();
     }
     private void Start() {
         StartCoroutine(InitializeBoxCollider());
         sadflooreffect.SetActive(false);
+
+        enemyType = Type.Boss;
     }
     private IEnumerator InitializeBoxCollider()
     {
@@ -55,8 +56,6 @@ public class Boss : MonoBehaviour
 
         boxCenter = sadFlooring.bounds.center;
         boxSize = sadFlooring.size;
-        // boxSize = sadFlooreff.shape.sca
-        // boxSize = sadFlooring.size;
     }
     void Update() {
         timer += Time.deltaTime;
@@ -93,11 +92,11 @@ public class Boss : MonoBehaviour
                     isFloor = true;
                 }
             }
-            if(!ispattern){
+            if(!player.isStun){
                 pattern1timer += Time.deltaTime;
                 if(pattern1timer >= 3f){
                     StartCoroutine("SadPattern2");
-                    ispattern = true;
+                    // player.isStun = true;
                 }
             }
             // if(transtimer >= 20f){
@@ -111,9 +110,9 @@ public class Boss : MonoBehaviour
     }
 
     public void patternoff(){
-        ispattern = false;
-        isRestrict = false;
         pattern1timer = 0;
+        Debug.Log(pattern1timer);
+        Debug.Log("작동중");
     }
     IEnumerator Laser(){
         int y = Random.Range(0,3);
@@ -126,12 +125,11 @@ public class Boss : MonoBehaviour
         if(y == 1){
             lasery = 2;
             tlaser.transform.position = new Vector3(tlaser.transform.position.x,lasery,0); 
-            }
+        }
         
         if(y == 2){
             lasery = 5;
             tlaser.transform.position = new Vector3(tlaser.transform.position.x,lasery,0); 
-            
         }
 
         tlaser.SetActive(true);
@@ -185,14 +183,14 @@ public class Boss : MonoBehaviour
         yield return new WaitForSeconds(2f); 
         BossRockPool.Instance.AddToPool(drop);
     }
+    
     IEnumerator SadPattern2() {
         // GameObject effect = BossEffectPool.Instance.GetSadPattern2();
         // effect.transform.position = new Vector3(effect.transform.position.x,-2.5f,0);
         // yield return new WaitForSeconds(2f); 
         // BossEffectPool.Instance.ReturnSadPattern2();
-        player = GameObject.FindGameObjectWithTag("Player").GetComponentInParent<TPlayer>();
-        // player.bossskill = true;
-        isRestrict = true;
+        // player = GameObject.FindGameObjectWithTag("Player").GetComponentInParent<TPlayer>();
+        player.getStun();
         yield return new WaitForSeconds(0.3f); 
 
         // GameObject drop = BossRockPool.Instance.GetFromPool();

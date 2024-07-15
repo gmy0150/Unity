@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TwoBitMachines.Editors;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Windows.Speech;
@@ -470,7 +471,9 @@ public class TPlayer : MonoBehaviour
     public void getStun(){
         isStun = true;
         rigid.constraints = RigidbodyConstraints2D.FreezePositionY|RigidbodyConstraints2D.FreezeRotation;
-        rigid.velocity = Vector2.zero;
+        rigid.velocity = Vector2.zero;       
+        Boss boss = GameObject.FindGameObjectWithTag("Boss").GetComponent<Boss>();
+        boss.patternoff();
         if(facingDir == 1){
             Flip();
         }
@@ -478,15 +481,19 @@ public class TPlayer : MonoBehaviour
     public void getStunoff(){
         isStun = false;
         rigid.constraints = RigidbodyConstraints2D.FreezeRotation;
+
+        Debug.Log(isStun);
     }
     void dostun(){
         if(isStun){
+            stateMachine.ChangeState(idleState);
             if(Input.GetButtonDown("Horizontal")){
                 count++;
                 Debug.Log(count);
             }
             if(count >= 8){
                 getStunoff();
+                Debug.Log("확인00");
                 count = 0;
             }
         }

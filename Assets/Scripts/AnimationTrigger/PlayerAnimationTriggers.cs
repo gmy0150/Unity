@@ -5,7 +5,21 @@ using UnityEngine;
 public class PlayerAnimationTriggers : MonoBehaviour
 {
     private TPlayer player => GetComponentInParent<TPlayer>();
-    private HealthBarUI healthBar =>GameObject.FindGameObjectWithTag("HealthBar").GetComponent<HealthBarUI>();
+    Animator animator;
+    public List<HealthBarUI> healthBars = new List<HealthBarUI>();
+
+    private void Awake()
+    {
+        animator = GetComponent<Animator>();
+        if (animator == null)
+        {
+            Debug.LogError("애니메이터가 없습니다.");
+        }
+        HealthBarUI[] allHealth = FindObjectsOfType<HealthBarUI>();
+        foreach (HealthBarUI health in allHealth) {
+            healthBars.Add(health);
+        }
+    }
     private void AnimationTrigger(){
         player.AnimationTrigger();
     }
@@ -13,6 +27,9 @@ public class PlayerAnimationTriggers : MonoBehaviour
         player.MoveTrigger();
     }
     void animationEnd(){
-        healthBar.destroyShield();
+        foreach (HealthBarUI health in healthBars){
+            // if(health.getHealth() >= 1f)
+            health.destroyShield();
+        }
     }
 }
