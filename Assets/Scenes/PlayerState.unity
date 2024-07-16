@@ -1628,7 +1628,6 @@ MonoBehaviour:
   angerdoor: 1
   saddoor: 0
   happydoor: 0
-  pattern1timer: 0
   transtimer: 0
 --- !u!212 &607260865
 SpriteRenderer:
@@ -2266,7 +2265,7 @@ RectTransform:
   m_Father: {fileID: 1299167896}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -4001,7 +4000,7 @@ RectTransform:
   m_Father: {fileID: 1290749586}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -4059,7 +4058,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1773153034
 Transform:
   m_ObjectHideFlags: 0
@@ -4107,7 +4106,6 @@ MonoBehaviour:
   angerdoor: 1
   saddoor: 0
   happydoor: 0
-  pattern1timer: 0
   transtimer: 0
 --- !u!1 &1785002320
 GameObject:

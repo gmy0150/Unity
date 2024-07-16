@@ -4,37 +4,20 @@ using UnityEngine;
 
 public class PlayerAttackA : PlayerAttackState
 {
-    public PlayerAttackA(TPlayer _player, PlayerStateMachine _stateMachine, string _animBoolName) : base(_player, _stateMachine, _animBoolName)
+    public PlayerAttackA(TPlayer _player, PlayerStateMachine _stateMachine, string _animBoolName, float _attackSpeed, int _damage,float _attackRange, float _deleteCombo,int _comboCount) : base(_player, _stateMachine, _animBoolName, _attackSpeed, _damage,_attackRange,_deleteCombo,_comboCount)
     {
     }
     public override void Enter(){
         base.Enter();
-
-        // else if(Input.GetKey(KeyCode.A)&&Input.GetKey(KeyCode.S)&&player.IsGroundDetected()&&player.CoolTime("SkillAS")){
-        //     stateMachine.ChangeState(player.skillAS);
-        // }
-        // else if(Input.GetKey(KeyCode.A)&&Input.GetKey(KeyCode.D)&&player.IsGroundDetected()&&player.CoolTime("SkillAD")){
-        //     stateMachine.ChangeState(player.skillAD);
-        // }
-        // else if(Input.GetKey(KeyCode.S)&&Input.GetKey(KeyCode.D)&&player.IsGroundDetected()){
-        //     Debug.Log("??");
-        //     stateMachine.ChangeState(player.skillSD);
-        // }
-        sword = true;
-        enemyLayer =  LayerMask.GetMask ("Enemy");
         var = false;
-        if(comboCounter > 1 || Time.time > lastTimeAttacked + deletecombo)
-            comboCounter = 0;
-        player.anim.SetInteger("ComboCounter",comboCounter);
+
     }
     public override void Exit()
     {
         base.Exit();
-        comboCounter++;
-        lastTimeAttacked = Time.time;
-        player.StartCoroutine("BusyFor");
-        sword = false;
+
     }
+
     public override void Update(){
         base.Update();
     }

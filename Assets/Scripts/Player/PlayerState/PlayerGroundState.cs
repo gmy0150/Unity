@@ -80,19 +80,19 @@ public class PlayerGroundState : PlayerState
         }
         else{
             if(isAPressed && currentTime - APressTime >= delayA){
-                if(player.IsGroundDetected()){
+                if(player.IsGroundDetected()&&!attacked){
                     stateMachine.ChangeState(player.attackAState);
                 }
             isAPressed = false;
             }
             if(isDPressed && currentTime - DPressTime >= delayD){
-                if(player.IsGroundDetected()){
+                if(player.IsGroundDetected()&&!attacked){
                     stateMachine.ChangeState(player.attackDState);
 
                 }
                 isDPressed = false;
             }if(isSPressed && currentTime - SPressTime >= delayS){
-                if(player.IsGroundDetected()){
+                if(player.IsGroundDetected()&&!attacked){
                     stateMachine.ChangeState(player.attackSState);
                 }
                 isSPressed = false;

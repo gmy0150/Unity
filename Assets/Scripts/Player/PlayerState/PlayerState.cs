@@ -9,7 +9,7 @@ public class PlayerState
     protected float deletecombo = 3;
     protected bool isATK;
     protected bool endanim;
-
+    protected static bool attacked;
     protected PlayerStateMachine stateMachine;
     protected TPlayer player;
     protected Rigidbody2D rb;

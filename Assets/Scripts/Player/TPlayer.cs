@@ -10,7 +10,7 @@ public class TPlayer : MonoBehaviour
     [Header("Move info")]
     public float moveSpeed = 8f;
     public float jumpforce;
-    public float atkspeed;
+
     static bool SkillADUsed;
     static bool SkillASDUsed;
     static bool SkillSDUsed;
@@ -98,9 +98,9 @@ public class TPlayer : MonoBehaviour
         moveState = new PlayerMoveState(this, stateMachine,"Move");
         jumpState = new PlayerJumpState(this, stateMachine, "Jump");
         airState = new PlayerAirState(this, stateMachine, "Jump");
-        attackAState = new PlayerAttackA(this, stateMachine, "AttackA");
+        attackAState = new PlayerAttackA(this, stateMachine, "AttackA",0.5f,10,3,3,2);
         attackSState = new PlayerAttackS(this, stateMachine, "AttackS");
-        attackDState = new PlayerAttackD(this, stateMachine, "AttackD");
+        attackDState = new PlayerAttackD(this, stateMachine, "AttackD",0.2f,20,3,3,3);
         dashState = new PlayerDashState(this, stateMachine);
         skillAD = new PlayerAD(this,stateMachine);
         skillAS = new PlayerAS(this,stateMachine);
@@ -146,6 +146,11 @@ public class TPlayer : MonoBehaviour
     public IEnumerator BusyFor(){
         isBusy = true;
         yield return new WaitForSeconds(0.2f);
+        isBusy = false;
+    }
+    public IEnumerator attackbusy(float seconds){
+        isBusy = true;
+        yield return new WaitForSeconds(seconds);
         isBusy = false;
     }
     public void AnimationTrigger() => stateMachine.currentState.AnimationFinsihTrigger();//함수 호출후 animationFinishTrigger를 작동하게 함
