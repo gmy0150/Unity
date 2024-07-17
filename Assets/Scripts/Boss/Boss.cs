@@ -16,9 +16,12 @@ public class Boss : EnemyHP
     public float dropInterval = 3f;
     public float laserinterval = 6f;
     public int laserDmg;
-    public bool angerdoor = true;
-    public bool saddoor = false;
-    public bool happydoor = false;
+    public bool angerdoor {get;private set;}
+    public bool saddoor {get;private set;}
+    public bool happydoor {get;private set;}
+    string angry = "angry";
+    string sad = "sad";
+    string happy = "happy";
 
     bool isFloor;
     GameObject sadflooreffect;
@@ -32,16 +35,38 @@ public class Boss : EnemyHP
     Rigidbody2D rigid;
     private Vector2 boxCenter;
     private Vector2 boxSize;
+    public bool hold{get; private set;}
     private void Awake() {
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<TPlayer>();
+        
         rigid = GetComponent<Rigidbody2D>();
         base.Awake();
     }
+    void setDoor(string Pdoor){
+    angerdoor = false;
+    saddoor = false;
+    happydoor = false;
+
+    switch(Pdoor) {
+        case "angry":
+            angerdoor = true;
+            break;
+        case "sad":
+            saddoor = true;
+            break;
+        case "happy":
+            happydoor = true;
+            break;
+        default:
+            break;
+    }
+}
     private void Start() {
         StartCoroutine(InitializeBoxCollider());
         sadflooreffect.SetActive(false);
-
+        setDoor(angry);
         enemyType = Type.Boss;
+        
     }
     private IEnumerator InitializeBoxCollider()
     {
@@ -57,6 +82,7 @@ public class Boss : EnemyHP
         boxCenter = sadFlooring.bounds.center;
         boxSize = sadFlooring.size;
     }
+
     void Update() {
         timer += Time.deltaTime;
         transtimer += Time.deltaTime;
@@ -74,9 +100,7 @@ public class Boss : EnemyHP
                 timer = 0;
             }
             if(transtimer > 5){
-                saddoor = true;
-                angerdoor = false;
-                happydoor = false;
+                setDoor(sad);
                 transtimer = 0;
             }
         }
@@ -99,13 +123,14 @@ public class Boss : EnemyHP
                     // player.isStun = true;
                 }
             }
-            // if(transtimer >= 20f){
-            //     saddoor = false;
-            //     angerdoor = true;
-            //     happydoor = false;
-            //     BossEffectPool.Instance.ReturnEffectall();
-            //     transtimer = 0;
-            // }
+            if(transtimer >= 10f){
+                setDoor(happy);
+                BossEffectPool.Instance.ReturnEffectall();
+                transtimer = 0;
+            }
+        }
+        if(happydoor){
+            Debug.Log("happy");
         }
     }
 

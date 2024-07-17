@@ -19,7 +19,7 @@ public class PlayerAirState : PlayerFlyState
     public override void Update()
     {
         base.Update();
-        rb.velocity = new Vector2(xInput * player.moveSpeed, rb.velocity.y);
+        // rb.velocity = new Vector2(xInput * player.moveSpeed, rb.velocity.y);
         if(!Input.GetKeyDown(KeyCode.Space)&&!player.IsGroundDetected()&&!stateMachine.GetState(player.dashState)){
             stateMachine.ChangeState(player.airState);
         }

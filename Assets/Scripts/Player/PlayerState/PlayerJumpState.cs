@@ -21,7 +21,7 @@ public class PlayerJumpState : PlayerFlyState
     public override void Update()
     {
         base.Update();
-            rb.velocity = new Vector2(xInput * player.moveSpeed, rb.velocity.y);
+            // rb.velocity = new Vector2(xInput * player.moveSpeed, rb.velocity.y);
         if(rb.velocity.y < 0){
             stateMachine.ChangeState(player.airState);
         }
