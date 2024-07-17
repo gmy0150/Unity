@@ -49,7 +49,9 @@ public class PlayerAttackState : PlayerState
     }
     public override void Update(){
         base.Update();
-
+        if(boss.happydoor){
+            player.Holding();
+        }
         StopA();
     }
     void StopA(){

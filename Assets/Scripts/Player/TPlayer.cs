@@ -10,16 +10,20 @@ public class TPlayer : MonoBehaviour
     [Header("Move info")]
     public float moveSpeed = 8f;
     public float jumpforce;
-
+    #region skill
+        
     static bool SkillADUsed;
     static bool SkillASDUsed;
     static bool SkillSDUsed;
     static bool SkillASUsed;
     static bool DashUsed;
+    #endregion
+
 
     [Header("count")]
     bool atkdmg = false;
-
+    #region Cooltime
+        
     public int attackACount;
     public float ComboTimer;
     public float SkillADCool;
@@ -33,6 +37,8 @@ public class TPlayer : MonoBehaviour
     public static float lastskillas;
     public static float lastskillasd;
     public static float lastDashTime;
+    #endregion
+
     float targetTime = -Mathf.Infinity;
     float SDtimer = 0;
     private float dashTimeLeft;
@@ -42,7 +48,7 @@ public class TPlayer : MonoBehaviour
     public float dashSpeed;
     public float distanceBetweenImages;
     public List<Enemy> enemies = new List<Enemy>();
-
+    #region Collision
     [Header("Collision info")]
     [SerializeField]private Transform groundCheck;
     [SerializeField]private float groundCheckDistance;
@@ -50,11 +56,12 @@ public class TPlayer : MonoBehaviour
     [SerializeField]private float WallCheckDistance;
     [SerializeField]private LayerMask whatIsGround;
     [SerializeField]private LayerMask whatIsWall;
+    #endregion
     [SerializeField]private GameObject ArrowObj;
 
     public float AttackRange;
     public int facingDir {get;private set;} = -1;
-    private bool facingRight = true;
+    public bool facingRight = true;
     public bool isBusy;
     #region Components
     public Animator anim{get; private set;}
@@ -92,7 +99,11 @@ public class TPlayer : MonoBehaviour
     #endregion
     bool isAlive = true;
     float timer;
+    public Transform BossTransform;
+    private Vector3 targetPosition; 
     private void Awake() {
+        #region StateMachine
+            
         stateMachine = new PlayerStateMachine();
         idleState = new PlayerIdleState(this, stateMachine,"Idle");
         moveState = new PlayerMoveState(this, stateMachine,"Move");
@@ -106,6 +117,8 @@ public class TPlayer : MonoBehaviour
         skillAS = new PlayerAS(this,stateMachine);
         skillSD = new PlayerSD(this,stateMachine);
         skillASD = new PlayerASD(this,stateMachine);
+        #endregion
+
         lineRenderer = GetComponentInChildren<LineRenderer>();
         Enemy[] allEnemies = FindObjectsOfType<Enemy>();
         foreach (Enemy enemy in allEnemies) {
@@ -209,7 +222,11 @@ public class TPlayer : MonoBehaviour
             stateMachine.ChangeState(idleState);
             }
         }
-    
+    public void Holding(){
+        float distanceX = BossTransform.position.x - transform.position.x;
+        Vector2 direction = new Vector2(distanceX, 0f).normalized;
+        SetVelocity(direction.x * 5f ,rigid.velocity.y);
+    }
     public void detailAD(){
         for(int i = 0; i< 8;i++){
             Vector3 bulletPosition = transform.position + transform.right;

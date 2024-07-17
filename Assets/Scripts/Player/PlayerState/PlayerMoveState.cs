@@ -20,10 +20,18 @@ public class PlayerMoveState : PlayerGroundState
     public override void Update()
     {
         base.Update();
-
-        if(!isATK)
-            player.SetVelocity(xInput * player.moveSpeed,rb.velocity.y);
-
+        if(boss.happydoor){
+            if(!player.facingRight){
+                player.SetVelocity(xInput * (player.moveSpeed - 4),rb.velocity.y);
+                Debug.Log("?");
+            }else{
+                player.SetVelocity(xInput * (player.moveSpeed + 4),rb.velocity.y);
+                Debug.Log("!");
+            }
+        }else{
+            if(!isATK)
+                player.SetVelocity(xInput * player.moveSpeed,rb.velocity.y);
+        }
         if(xInput == 0&&!player.isBusy){
             stateMachine.ChangeState(player.idleState);
         }

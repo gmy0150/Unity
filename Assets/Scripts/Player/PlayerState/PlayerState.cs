@@ -19,6 +19,7 @@ public class PlayerState
     protected bool moveTrigger;
     static string temp;
     static int stunoff = 0;
+    protected Boss boss;
 
     public PlayerState(TPlayer _player,PlayerStateMachine _stateMachine, string _animBoolName){
         this.player = _player;
@@ -29,7 +30,10 @@ public class PlayerState
         this.player = _player;
         this.stateMachine = _stateMachine;
     }
+    public virtual void Awake() {
+    }
     public virtual void Enter(){
+
         if(animBoolName != null)
             player.anim.SetBool(animBoolName,true);
         rb = player.rigid;
@@ -37,6 +41,7 @@ public class PlayerState
         moveTrigger = false;
         isATK =false;
     }
+
     public virtual void Update(){
         if(!isATK)
             xInput = Input.GetAxisRaw("Horizontal");
@@ -45,6 +50,8 @@ public class PlayerState
             temp = animBoolName;
             stateMachine.DashState(player.dashState);
         }
+        boss = GameObject.FindGameObjectWithTag("Boss").GetComponent<Boss>();
+
     }
     public virtual void Exit(){
         if(animBoolName != null){

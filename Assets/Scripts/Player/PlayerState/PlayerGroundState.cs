@@ -22,7 +22,10 @@ public class PlayerGroundState : PlayerState
     public PlayerGroundState(TPlayer _player, PlayerStateMachine _stateMachine, string _animBoolName) : base(_player, _stateMachine, _animBoolName)
     {
     }
-
+    public override void Awake()
+    {
+        base.Awake();
+    }
     public override void Enter()
     {
         base.Enter();
@@ -36,6 +39,7 @@ public class PlayerGroundState : PlayerState
         base.Update();
         float currentTime = Time.time;
         if(Input.GetKeyDown(KeyCode.Space)&&!Input.GetKey(KeyCode.DownArrow)&&player.IsGroundDetected()){
+            Debug.Log("확인");
             stateMachine.ChangeState(player.jumpState);
         }
         if(!Input.GetKeyDown(KeyCode.Space)&&!player.IsGroundDetected()){
@@ -44,6 +48,7 @@ public class PlayerGroundState : PlayerState
         if(Input.GetKeyDown(KeyCode.Space)&&Input.GetKey(KeyCode.DownArrow)){
             player.checkDownPlatform();
         }
+        #region atk
         if(Input.GetKeyDown(KeyCode.A)){
             APressTime = currentTime;
             isAPressed = true;
@@ -98,6 +103,7 @@ public class PlayerGroundState : PlayerState
                 isSPressed = false;
             }
         }
+        #endregion
     }
         
     bool CheckKeyPressed(float pressTimeA, float pressTimeD, float delayA){
