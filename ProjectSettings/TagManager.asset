@@ -12,6 +12,13 @@ TagManager:
   - GameManager
   - Floor
   - Bow
+  - Boss
+  - Wall
+  - RockEnd
+  - BossDMG
+  - Bosslaser
+  - DownPlatform
+  - HealthBar
   layers:
   - Default
   - TransparentFX
@@ -23,12 +30,12 @@ TagManager:
   - Player
   - bullet
   - Enemy
-  - 
-  - 
+  - Wall
+  - Boss
   - DeadEnemy
   - 
   - 
-  - 
+  - NoFloor
   - 
   - 
   - 
@@ -46,6 +53,15 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: BackGround
+    uniqueID: 1551998099
+    locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Player
+    uniqueID: 2256784745
+    locked: 0
+  - name: ForgeGround
+    uniqueID: 1391113631
     locked: 0
