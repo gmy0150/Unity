@@ -85,7 +85,7 @@ public class Boss : EnemyHP
 
     void Update() {
         timer += Time.deltaTime;
-        transtimer += Time.deltaTime;
+        // transtimer += Time.deltaTime;
         if(angerdoor){
             if(!islaser){
                 pattern1timer += Time.deltaTime;

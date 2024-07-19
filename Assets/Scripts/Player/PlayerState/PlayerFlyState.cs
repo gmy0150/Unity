@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerFlyState : PlayerState
 {
+    protected static int jumpcount;
     public PlayerFlyState(TPlayer _player, PlayerStateMachine _stateMachine, string _animBoolName) : base(_player, _stateMachine, _animBoolName)
     {
     }
@@ -34,6 +35,7 @@ public class PlayerFlyState : PlayerState
         }
         if(player.IsGroundDetected()){
             stateMachine.ChangeState(player.idleState);
+            jumpcount = 0;
         }
         
     }

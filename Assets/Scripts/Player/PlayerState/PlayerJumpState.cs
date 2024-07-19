@@ -12,7 +12,7 @@ public class PlayerJumpState : PlayerFlyState
     {
         base.Enter();
         rb.velocity = new Vector2(rb.velocity.x, player.jumpforce);
-        
+        jumpcount++;
     }
     public override void Exit()
     {
