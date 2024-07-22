@@ -17,7 +17,7 @@ public class HealthBarUI : MonoBehaviour
     private void Awake() {
         animator = GetComponentInChildren<Animator>();
         if(animator == null)
-        Debug.Log("애니매이션 없음");
+        Debug.Log(animator.transform.parent.parent+"애니매이션 없음");
     }
     private void Start() {
         
@@ -38,8 +38,10 @@ public class HealthBarUI : MonoBehaviour
     }
     public void UpdateShieldBar(float curShiled,float maxShiled){
         Shiledslider.value = curShiled / maxShiled;
-        if(Shiledslider.value == 1f){
+            Debug.Log(Shiledslider.value);
+
             animator.SetBool("UI",true);
+        if(Shiledslider.value <= 0.9f){
             animator.SetFloat("Blend",0f);
         }
         if(Shiledslider.value <= 0.7f){

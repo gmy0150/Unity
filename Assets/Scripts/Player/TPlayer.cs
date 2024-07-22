@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using TwoBitMachines.Editors;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Windows.Speech;
@@ -101,6 +100,7 @@ public class TPlayer : MonoBehaviour
     float timer;
     public Transform BossTransform;
     private Vector3 targetPosition; 
+    Boss boss2;
     private void Awake() {
         #region StateMachine
             
@@ -131,6 +131,7 @@ public class TPlayer : MonoBehaviour
         rigid = GetComponent<Rigidbody2D>();
         stateMachine.Initalize(idleState);
         curHP = maxHP;
+        boss2 = GameObject.FindGameObjectWithTag("Boss").GetComponent<Boss>();
     }
     private void Update() {
         if(isAlive){
@@ -153,6 +154,9 @@ public class TPlayer : MonoBehaviour
                 atkdmg = false;
                 timer = 0;
             }
+        }
+        if(Input.GetKeyDown(KeyCode.Z)){
+            boss2.getDamage(20);
         }
 
     }

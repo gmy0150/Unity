@@ -22,7 +22,7 @@ public class Boss : EnemyHP
     string angry = "angry";
     string sad = "sad";
     string happy = "happy";
-
+    public LayerMask layerMask;
     bool isFloor;
     GameObject sadflooreffect;
     bool islaser;
@@ -35,7 +35,10 @@ public class Boss : EnemyHP
     Rigidbody2D rigid;
     private Vector2 boxCenter;
     private Vector2 boxSize;
+    private Vector2 laserSize;     // 레이저 크기 저장
+    private Vector3 laserPosition;
     public bool hold{get; private set;}
+    public GameObject shiledimage;
     private void Awake() {
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<TPlayer>();
         
@@ -62,17 +65,32 @@ public class Boss : EnemyHP
     }
 }
     private void Start() {
+
         StartCoroutine(InitializeBoxCollider());
         sadflooreffect.SetActive(false);
         setDoor(angry);
         enemyType = Type.Boss;
-        
+        base.Awake();
+        shiledimage.SetActive(false);
     }
     private IEnumerator InitializeBoxCollider()
     {
         sadflooreffect = BossEffectPool.Instance.GetfloorEffect();
+        RaycastHit2D hit = Physics2D.Raycast(
+            rockStart.transform.position, 
+            Vector2.down, 
+            Mathf.Infinity, 
+            LayerMask.GetMask("Floor")
+        );
 
-        sadflooreffect.transform.position = new Vector3(rockStart.transform.position.x, -2.5f, 0);
+        if (hit.collider != null)
+        {
+            // 충돌한 floor 레이어의 y 좌표를 사용
+            float floorY = hit.collider.bounds.max.y;
+            sadflooreffect.transform.position = new Vector3(rockStart.transform.position.x, floorY, 0);
+            Debug.Log("확인");
+        }
+        // sadflooreffect.transform.position = new Vector3(rockStart.transform.position.x, -2.5f, 0);
         yield return new WaitForSeconds(1f);
 
         sadFlooring = sadflooreffect.GetComponent<BoxCollider2D>();
@@ -85,7 +103,7 @@ public class Boss : EnemyHP
 
     void Update() {
         timer += Time.deltaTime;
-        transtimer += Time.deltaTime;
+        // transtimer += Time.deltaTime;
         if(angerdoor){
             if(!islaser){
                 pattern1timer += Time.deltaTime;
@@ -109,11 +127,15 @@ public class Boss : EnemyHP
                 DrawBox();
             if(timer > 5f){
                 if(!isFloor){
+                    // droppos.y = 3;
                     Vector3 droppos = rockStart.transform.position;
-                    droppos.y = 0;
                     StartCoroutine(sadfloor(droppos));
                     // timer = 0;
                     isFloor = true;
+                    maxShiled = 100;
+                    curShiled = 100;
+                    shiledimage.SetActive(true);
+                    healthbar.UpdateShieldBar(curShiled,maxShiled);
                 }
             }
             if(!player.isStun){
@@ -133,11 +155,15 @@ public class Boss : EnemyHP
             Debug.Log("happy");
         }
     }
-
+    public void getDamage(int hp){
+        if(curShiled > 0){
+            curShiled -= hp;
+        healthbar.UpdateShieldBar(curShiled,maxShiled);
+        }
+        curHelath -= hp;
+    }
     public void patternoff(){
         pattern1timer = 0;
-        Debug.Log(pattern1timer);
-        Debug.Log("작동중");
     }
     IEnumerator Laser(){
         int y = Random.Range(0,3);
@@ -162,22 +188,30 @@ public class Boss : EnemyHP
         tlaser.SetActive(false);
         laser.transform.position = new Vector3(laser.transform.position.x,lasery,0);
         
+        laserSize = laser.GetComponent<SpriteRenderer>().bounds.size;
+        laserPosition = laser.transform.position;
+        // 박스 캐스트 실행
+
         laser.SetActive(true);
-        float laserDuration = 2f; 
+        float laserDuration = 1f; 
         float elapsedTime = 0f;
+        RaycastHit2D rayed = Physics2D.BoxCast(
+            laser.transform.position, 
+            laserSize, 
+            0f, 
+            Vector2.left, 
+            0f, 
+            layerMask
+        );
 
         while (elapsedTime < laserDuration)
         {
-            RaycastHit2D hit =Physics2D.Raycast(laser.transform.position, 
-            -laser.transform.right, 10f,LayerMask.GetMask("Player"));
-            if(hit.collider != null){
-                player = hit.collider.GetComponent<TPlayer>();
-                if(player!=null){
-                    if(!atk){
-                        Debug.Log("확인");
-                        player.getDamage(laserDmg);
-                        atk = true;
-                    }
+            if (rayed.collider != null)
+            {
+                if (rayed.collider.CompareTag("Player"))
+                {
+                    player.getDamage(laserDmg);
+                    Debug.Log("Player hit by laser!");
                 }
             }
             elapsedTime += Time.deltaTime;
@@ -195,7 +229,8 @@ public class Boss : EnemyHP
 
         Gizmos.color = Color.green;
         Gizmos.DrawLine(rayOrigin, rayOrigin + rayDirection * 10f);
-    
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireCube(laserPosition, laserSize);
     }
     IEnumerator DropWithEffect(Vector3 position) {
         GameObject effect = BossEffectPool.Instance.GetEffect();

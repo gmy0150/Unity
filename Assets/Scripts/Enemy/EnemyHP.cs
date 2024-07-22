@@ -16,10 +16,13 @@ public class EnemyHP : MonoBehaviour
     // [SerializeField]protected GameObject particle;
     public virtual void Start()
     {
-        healthbar.UpdateShieldBar(curShiled,maxShiled);
+        if(enemyType != Type.Boss)
+            healthbar.UpdateShieldBar(curShiled,maxShiled);
     }
     public virtual void Awake() {
         healthbar = GetComponentInChildren<HealthBarUI>();
+        if(healthbar != null)
+        Debug.Log(healthbar.transform.parent.parent+ "헬스바있음");
         
     }
     void Update()

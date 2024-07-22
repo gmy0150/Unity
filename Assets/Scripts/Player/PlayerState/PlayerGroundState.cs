@@ -39,7 +39,7 @@ public class PlayerGroundState : PlayerState
         base.Update();
         float currentTime = Time.time;
         if(Input.GetKeyDown(KeyCode.Space)&&!Input.GetKey(KeyCode.DownArrow)&&player.IsGroundDetected()){
-            Debug.Log("확인");
+
             stateMachine.ChangeState(player.jumpState);
         }
         if(!Input.GetKeyDown(KeyCode.Space)&&!player.IsGroundDetected()){
