@@ -38,18 +38,18 @@ public class HealthBarUI : MonoBehaviour
     }
     public void UpdateShieldBar(float curShiled,float maxShiled){
         Shiledslider.value = curShiled / maxShiled;
-            Debug.Log(Shiledslider.value);
 
-            animator.SetBool("UI",true);
-        if(Shiledslider.value <= 0.9f){
-            animator.SetFloat("Blend",0f);
-        }
-        if(Shiledslider.value <= 0.7f){
-            animator.SetFloat("Blend",0.5f);
-        }
-        if(Shiledslider.value <= 0.3f){
-            animator.SetFloat("Blend",1f);
-        }
+
+        animator.SetBool("UI",true);
+        animator.SetFloat("Blend",Shiledslider.value);
+        // if(Shiledslider.value <= 0.9f){
+        // }
+        // if(Shiledslider.value <= 0.7f){
+        //     animator.SetFloat("Blend",0.5f);
+        // }
+        // if(Shiledslider.value <= 0.3f){
+        //     animator.SetFloat("Blend",1f);
+        // }
         if(Shiledslider.value == 0f){
             animator.SetBool("UI",false);
             animator.SetBool("anim",true);

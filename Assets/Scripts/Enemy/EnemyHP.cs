@@ -21,9 +21,6 @@ public class EnemyHP : MonoBehaviour
     }
     public virtual void Awake() {
         healthbar = GetComponentInChildren<HealthBarUI>();
-        if(healthbar != null)
-        Debug.Log(healthbar.transform.parent.parent+ "헬스바있음");
-        
     }
     void Update()
     {

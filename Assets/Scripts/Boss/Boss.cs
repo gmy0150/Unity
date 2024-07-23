@@ -39,9 +39,10 @@ public class Boss : EnemyHP
     private Vector3 laserPosition;
     public bool hold{get; private set;}
     public GameObject shiledimage;
+    Animator animator;
     private void Awake() {
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<TPlayer>();
-        
+        animator = GetComponentInChildren<Animator>();
         rigid = GetComponent<Rigidbody2D>();
         base.Awake();
     }
@@ -88,7 +89,6 @@ public class Boss : EnemyHP
             // 충돌한 floor 레이어의 y 좌표를 사용
             float floorY = hit.collider.bounds.max.y;
             sadflooreffect.transform.position = new Vector3(rockStart.transform.position.x, floorY, 0);
-            Debug.Log("확인");
         }
         // sadflooreffect.transform.position = new Vector3(rockStart.transform.position.x, -2.5f, 0);
         yield return new WaitForSeconds(1f);
@@ -149,6 +149,7 @@ public class Boss : EnemyHP
                 setDoor(happy);
                 BossEffectPool.Instance.ReturnEffectall();
                 transtimer = 0;
+                animator.SetBool("Stun",true);
             }
         }
         if(happydoor){
