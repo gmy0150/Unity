@@ -48,7 +48,7 @@ public class PlayerState
         player.anim.SetFloat("yVelocity",rb.velocity.y);
         if(Input.GetKeyDown(KeyCode.LeftShift)&&player.CoolTime("Dash")){
             temp = animBoolName;
-            stateMachine.DashState(player.dashState);
+            stateMachine.ChangeState(player.dashState);
         }
         boss = GameObject.FindGameObjectWithTag("Boss").GetComponent<Boss>();
 

@@ -13,11 +13,15 @@ public class BossBrick : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other) {
         if(other.tag == "Boss"){
-            Destroy(gameObject);
+            // Destroy(gameObject);
+            BossRockPool.Instance.AddBrickToPool(gameObject);
+
         }
         if(other.tag == "Player"){
             player.getDamage(10);
-            Destroy(gameObject);
+            player.React();
+            BossRockPool.Instance.AddBrickToPool(gameObject);
         }
     }
+
 }

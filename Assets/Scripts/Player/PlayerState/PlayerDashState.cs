@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerDashState : PlayerState
 {
-    public PlayerDashState(TPlayer _player, PlayerStateMachine _stateMachine) : base(_player, _stateMachine)
+    public PlayerDashState(TPlayer _player, PlayerStateMachine _stateMachine, string _animBoolName) : base(_player, _stateMachine, _animBoolName)
     {
     }
 

@@ -89,19 +89,21 @@ public class PlayerGroundState : PlayerState
                     stateMachine.ChangeState(player.attackAState);
                 }
             isAPressed = false;
-            }
-            if(isDPressed && currentTime - DPressTime >= delayD){
+
+            }if(isSPressed && currentTime - SPressTime >= delayS){
+                if(player.IsGroundDetected()&&!attacked){
+                    stateMachine.ChangeState(player.attackSState);
+                    PlayerArrowPool.Instance.GetArrow();
+                }
+                isSPressed = false;
+            }if(isDPressed && currentTime - DPressTime >= delayD){
                 if(player.IsGroundDetected()&&!attacked){
                     stateMachine.ChangeState(player.attackDState);
 
                 }
                 isDPressed = false;
-            }if(isSPressed && currentTime - SPressTime >= delayS){
-                if(player.IsGroundDetected()&&!attacked){
-                    stateMachine.ChangeState(player.attackSState);
-                }
-                isSPressed = false;
             }
+                
         }
         #endregion
     }

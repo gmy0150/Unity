@@ -10,6 +10,8 @@ public class Boss : EnemyHP
     [SerializeField]private GameObject rockStart;
     [SerializeField]private GameObject tlaser;
     [SerializeField]private GameObject laser;
+    [SerializeField]private GameObject brickstart;
+
     TPlayer player;
     public int flooringdmg;
     BoxCollider2D sadFlooring;
@@ -40,6 +42,7 @@ public class Boss : EnemyHP
     public bool hold{get; private set;}
     public GameObject shiledimage;
     Animator animator;
+    bool init;
     private void Awake() {
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<TPlayer>();
         animator = GetComponentInChildren<Animator>();
@@ -105,61 +108,82 @@ public class Boss : EnemyHP
         timer += Time.deltaTime;
         // transtimer += Time.deltaTime;
         if(angerdoor){
-            if(!islaser){
-                pattern1timer += Time.deltaTime;
-                }
-            if(pattern1timer >= laserinterval){
-                StartCoroutine("Laser");
-                pattern1timer = 0;
-            }
-            if(timer >= dropInterval){   
-                Vector3 dropPosition = GetRandomPointInBox();
-                StartCoroutine(DropWithEffect(dropPosition));
-                timer = 0;
-            }
-            if(transtimer > 5){
-                setDoor(sad);
-                transtimer = 0;
-            }
+            Angrydoor();
         }
         if(saddoor){
-            if(isFloor)
-                DrawBox();
-            if(timer > 5f){
-                if(!isFloor){
-                    // droppos.y = 3;
-                    Vector3 droppos = rockStart.transform.position;
-                    StartCoroutine(sadfloor(droppos));
-                    // timer = 0;
-                    isFloor = true;
-                    maxShiled = 100;
-                    curShiled = 100;
-                    shiledimage.SetActive(true);
-                    healthbar.UpdateShieldBar(curShiled,maxShiled);
-                }
-            }
-            if(!player.isStun){
-                pattern1timer += Time.deltaTime;
-                if(pattern1timer >= 3f){
-                    StartCoroutine("SadPattern2");
-                    // player.isStun = true;
-                }
-            }
-            if(transtimer >= 10f){
-                setDoor(happy);
-                BossEffectPool.Instance.ReturnEffectall();
-                transtimer = 0;
-                animator.SetBool("Stun",true);
-            }
+            Saddoor();
         }
         if(happydoor){
-            Debug.Log("happy");
+            Happydoor();
+            }
+        }
+    void Angrydoor(){
+        if(!islaser){
+            pattern1timer += Time.deltaTime;
+            }
+        if(pattern1timer >= laserinterval){
+            StartCoroutine("Laser");
+            pattern1timer = 0;
+        }
+        if(timer >= dropInterval){   
+            Vector3 dropPosition = GetRandomPointInBox(rockStart);
+            StartCoroutine(DropWithEffect(dropPosition));
+            timer = 0;
+        }
+        if(transtimer > 5){
+            setDoor(sad);
+            transtimer = 0;
+        }
+    }
+    void Saddoor(){
+        if(!init){
+            
+            maxShiled = 100;
+            curShiled = 100;
+            shiledimage.SetActive(true);
+            healthbar.UpdateShieldBar(curShiled,maxShiled);
+            init = true;
+        }
+        if(isFloor)
+            DrawBox();
+        if(timer > 5f){
+            if(!isFloor){
+                // droppos.y = 3;
+                Vector3 droppos = rockStart.transform.position;
+                StartCoroutine(sadfloor(droppos));
+                // timer = 0;
+                isFloor = true;
+                
+            }
+        }
+        if(!player.isStun){
+            pattern1timer += Time.deltaTime;
+            if(pattern1timer >= 3f){
+                StartCoroutine("SadPattern2");
+                // player.isStun = true;
+            }
+        }
+        if(transtimer >= 10f){
+            setDoor(happy);
+            BossEffectPool.Instance.ReturnEffectall();
+            transtimer = 0;
+            animator.SetBool("Stun",true);
+        }
+    }
+    void Happydoor(){
+        if(timer > 3f){
+            for(int i = 1; i<= 3; i++){
+                Vector3 brick = GetRandomPointInBox(brickstart);
+                Vector3 rock = GetRandomPointInBox(rockStart);
+                StartBrick(brick, rock);
+            }
+        timer = 0;
         }
     }
     public void getDamage(int hp){
         if(curShiled > 0){
             curShiled -= hp;
-        healthbar.UpdateShieldBar(curShiled,maxShiled);
+            healthbar.UpdateShieldBar(curShiled,maxShiled);
         }
         curHelath -= hp;
     }
@@ -244,6 +268,14 @@ public class Boss : EnemyHP
         yield return new WaitForSeconds(2f); 
         BossRockPool.Instance.AddToPool(drop);
     }
+    void StartBrick(Vector3 position, Vector3 positions){
+        GameObject drop = BossRockPool.Instance.GetBrickFromPool();
+        drop.transform.position = position;
+        GameObject drops = BossRockPool.Instance.GetBrickFromPool();
+        drops.transform.position = positions;
+    
+
+    }
     
     IEnumerator SadPattern2() {
         // GameObject effect = BossEffectPool.Instance.GetSadPattern2();
@@ -260,8 +292,8 @@ public class Boss : EnemyHP
         // yield return new WaitForSeconds(2f); 
         // BossRockPool.Instance.AddToPool(drop);
     }
-    Vector3 GetRandomPointInBox(){
-        BoxCollider2D collider = rockStart.GetComponent<BoxCollider2D>();
+    Vector3 GetRandomPointInBox(GameObject gameObject){
+        BoxCollider2D collider = gameObject.GetComponent<BoxCollider2D>();
         if (collider != null) {
             Vector2 size = collider.size;
             Vector2 offset = collider.offset;
@@ -269,9 +301,9 @@ public class Boss : EnemyHP
             float y = Random.Range(-size.y / 2, size.y / 2) + offset.y;
             Vector3 dropPosition = new Vector3(x, y, 0); 
             
-            return rockStart.transform.TransformPoint(dropPosition); 
+            return gameObject.transform.TransformPoint(dropPosition); 
         }
-        return rockStart.transform.position;
+        return gameObject.transform.position;
     }
     IEnumerator sadfloor(Vector3 position){
         sadflooreffect.SetActive(true);

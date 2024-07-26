@@ -12,6 +12,7 @@ public class rock : MonoBehaviour
             TPlayer player = GameObject.FindGameObjectWithTag("Player").GetComponentInParent<TPlayer>();
             if(player !=null){
                 player.getDamage(BossRockDmg);
+                
             }
         }
     }

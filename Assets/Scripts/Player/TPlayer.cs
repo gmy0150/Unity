@@ -1,8 +1,8 @@
+
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.Windows.Speech;
 
 public class TPlayer : MonoBehaviour
 {
@@ -85,19 +85,25 @@ public class TPlayer : MonoBehaviour
     public PlayerAS skillAS{get; private set;}
     public PlayerSD skillSD{get; private set;}
     public PlayerASD skillASD{get; private set;}
+    public PlayerJumpAState jumpAState{get; private set;}
+    public PlayerJumpSState jumpSState{get; private set;}
+    public PlayerJumpDState jumpDState{get; private set;}
+    #endregion
     [SerializeField]private GameObject SkillObj;
-
+    public bool notupdate;
     LineRenderer lineRenderer;
     float rayDelay = 0.5f;
     float lineLength  = 5.0f;
     [SerializeField]private GameObject playerPrefab;
 
     public bool isAS{get;private set;}
+    [SerializeField]private SpriteRenderer[] sprite;
 
     public bool isStun{get;private set;}
-    #endregion
+    public bool isBrick;
     bool isAlive = true;
     float timer;
+    bool damaged;
     public Transform BossTransform;
     private Vector3 targetPosition; 
     Boss boss2;
@@ -112,13 +118,16 @@ public class TPlayer : MonoBehaviour
         attackAState = new PlayerAttackA(this, stateMachine, "AttackA",0.5f,10,3,3,2);
         attackSState = new PlayerAttackS(this, stateMachine, "AttackS");
         attackDState = new PlayerAttackD(this, stateMachine, "AttackD",0.2f,20,3,3,3);
-        dashState = new PlayerDashState(this, stateMachine);
+        jumpAState = new PlayerJumpAState(this,stateMachine,"JumpSword",10);
+        jumpSState = new PlayerJumpSState(this,stateMachine,"JumpBow",20);
+        jumpDState = new PlayerJumpDState(this,stateMachine,"JumpHammer",10);
+        dashState = new PlayerDashState(this, stateMachine,"Dash");
         skillAD = new PlayerAD(this,stateMachine);
         skillAS = new PlayerAS(this,stateMachine);
         skillSD = new PlayerSD(this,stateMachine);
         skillASD = new PlayerASD(this,stateMachine);
         #endregion
-
+        sprite = GetComponentsInChildren<SpriteRenderer>();
         lineRenderer = GetComponentInChildren<LineRenderer>();
         Enemy[] allEnemies = FindObjectsOfType<Enemy>();
         foreach (Enemy enemy in allEnemies) {
@@ -135,13 +144,18 @@ public class TPlayer : MonoBehaviour
     }
     private void Update() {
         if(isAlive){
-            if(!isStun){
+            if(CheckStun()){
                 stateMachine.currentState.Update();
             }else{
                 // stateMachine.ChangeState(idleState);
                 dostun();
             }
-            FlipController();
+            if(isBrick){
+                timer += Time.deltaTime;
+                if(timer > 0.5f){
+                    isBrick = false;
+                }
+            }
             if(curHP <= 0){
                 maxHP = 0;
                 isAlive = false;
@@ -149,16 +163,28 @@ public class TPlayer : MonoBehaviour
             if(atkdmg){
                 timer += Time.deltaTime;
             }
-
-            if(atkdmg&&timer >= 3){
+            if(atkdmg&&timer >= 1f){
                 atkdmg = false;
                 timer = 0;
             }
+            FlipController();
         }
         if(Input.GetKeyDown(KeyCode.Z)){
             boss2.getDamage(20);
         }
+        if(IsGroundDetected()){
+            notupdate = false;
+        }
 
+    }
+    bool CheckStun(){
+        if(isStun)
+            return false;
+        if(isBrick)
+            return false;
+        if(notupdate)
+            return false;
+        return true;
     }
     public IEnumerator BusyFor(){
         isBusy = true;
@@ -194,10 +220,12 @@ public class TPlayer : MonoBehaviour
     }
 
     public void FlipController(){
-        if(rigid.velocity.x > 2 && !facingRight){//양수로 가고 facingRight가 false일 때 기본이 false니까 오른쪽을 보고있을 때, 오른쪽 이동일 때
-            Flip();
-        }else if(rigid.velocity.x < -2 && facingRight){//음수로 가고 facingRight가 true일 때 왼쪽이동 transform.flip을 쓰면 문제가 되는 부분이 많으니까 이렇게 처리해서 하는 부분 이건 공부를 해야겠다.
-            Flip();
+        if(!damaged){
+            if(rigid.velocity.x > 2 && !facingRight){//양수로 가고 facingRight가 false일 때 기본이 false니까 오른쪽을 보고있을 때, 오른쪽 이동일 때
+                Flip();
+            }else if(rigid.velocity.x < -2 && facingRight){//음수로 가고 facingRight가 true일 때 왼쪽이동 transform.flip을 쓰면 문제가 되는 부분이 많으니까 이렇게 처리해서 하는 부분 이건 공부를 해야겠다.
+                Flip();
+            }
         }
     }
     public void AttemptToDash(){
@@ -457,8 +485,9 @@ public class TPlayer : MonoBehaviour
                 Debug.Log(enemy);
                 Transform enemyTransform = enemy.transform;
                 Vector3 targetPosition = enemyTransform.position - enemyTransform.forward * 2; // 적의 위치에서 앞으로 2만큼 떨어진 곳으로 설정
-                GameObject playerClone = Instantiate(playerPrefab, targetPosition, Quaternion.identity);
-                Destroy(gameObject);
+                gameObject.transform.position = targetPosition;
+                // GameObject playerClone = Instantiate(playerPrefab, targetPosition, Quaternion.identity);
+                // Destroy(gameObject);
                 enemy.TakeDamage(50);
                 enemy.isEnter = false;
             }
@@ -489,10 +518,43 @@ public class TPlayer : MonoBehaviour
         if(!atkdmg){
             atkdmg = true;
             curHP -= hp;
+            StartCoroutine(OnDamage());
+
         }
         if(curHP <= 0){
             isAlive = false;
         }
+    }
+    public void React(){
+        isBrick = true;
+        // stateMachine.ChangeState(idleState);
+        rigid.AddForce(Vector3.right * 50, ForceMode2D.Impulse);
+    }
+
+    IEnumerator OnDamage(){
+        damaged = true;
+        foreach(SpriteRenderer mesh in sprite)
+            mesh.color = Color.red;
+        yield return new WaitForSeconds(0.1f);
+
+        if(curHP > 0){
+            foreach(SpriteRenderer mesh in sprite){
+                mesh.color = Color.white;
+                // reactVec = reactVec.normalized;
+                Vector3 reactvec = rigid.velocity.normalized;
+                rigid.AddForce(-reactvec * 10, ForceMode2D.Impulse);
+                yield return new WaitForSeconds(0.3f);
+            }
+        }
+        else{
+            foreach(SpriteRenderer mesh in sprite){
+                mesh.color = Color.gray;
+                gameObject.layer = 12;
+            }
+        //     // isDead = true;
+        //     // Die();
+        }
+        damaged = false;
     }
     public void getStun(){
         isStun = true;
@@ -519,9 +581,40 @@ public class TPlayer : MonoBehaviour
             }
             if(count >= 8){
                 getStunoff();
-                Debug.Log("확인00");
                 count = 0;
             }
         }
+    }
+    public void JumpAStart(){
+        StartCoroutine(KeyA());
+    }
+    public void JumpSStart(){
+        StartCoroutine(KeyS());
+    }
+    public void JumpDStart(){
+        StartCoroutine(KeyD());
+        Debug.Log("확인0.1");
+    }
+    public IEnumerator KeyA(){
+        notupdate = true;
+        
+        yield return new WaitForSeconds(0.1f);
+        stateMachine.ChangeState(jumpAState);
+    
+    }
+        public IEnumerator KeyS(){
+        notupdate = true;
+        
+        yield return new WaitForSeconds(0.1f);
+        
+        stateMachine.ChangeState(jumpSState);
+    
+    }
+        public IEnumerator KeyD(){
+        notupdate = true;
+        Debug.Log("확인0.2ㄹ");
+        yield return new WaitForSeconds(0.1f);
+        stateMachine.ChangeState(jumpDState);
+    
     }
 }
