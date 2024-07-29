@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.SymbolStore;
 using System.Diagnostics.Tracing;
 using UnityEngine;
-using UnityEngine.UIElements;
+using UnityEngine.UI;
 
 public class Boss : EnemyHP
 {
@@ -24,6 +24,7 @@ public class Boss : EnemyHP
     string angry = "angry";
     string sad = "sad";
     string happy = "happy";
+    string die = "die";
     public LayerMask layerMask;
     bool isFloor;
     GameObject sadflooreffect;
@@ -41,6 +42,13 @@ public class Boss : EnemyHP
     private Vector3 laserPosition;
     public bool hold{get; private set;}
     public GameObject shiledimage;
+    public Sprite saveUI;
+    public GameObject weakness;
+    bool bossdie;
+    bool bossGroggy;
+    // public Sprite angryImage;
+    // public Sprite saveImage;
+
     Animator animator;
     bool init;
     private void Awake() {
@@ -53,7 +61,7 @@ public class Boss : EnemyHP
     angerdoor = false;
     saddoor = false;
     happydoor = false;
-
+    bossdie = false;
     switch(Pdoor) {
         case "angry":
             angerdoor = true;
@@ -64,18 +72,21 @@ public class Boss : EnemyHP
         case "happy":
             happydoor = true;
             break;
+        case "die":
+            bossdie = true;
+            break;
         default:
             break;
     }
 }
     private void Start() {
-
         StartCoroutine(InitializeBoxCollider());
         sadflooreffect.SetActive(false);
         setDoor(angry);
         enemyType = Type.Boss;
         base.Awake();
         shiledimage.SetActive(false);
+        weakness.SetActive(false);
     }
     private IEnumerator InitializeBoxCollider()
     {
@@ -93,7 +104,6 @@ public class Boss : EnemyHP
             float floorY = hit.collider.bounds.max.y;
             sadflooreffect.transform.position = new Vector3(rockStart.transform.position.x, floorY, 0);
         }
-        // sadflooreffect.transform.position = new Vector3(rockStart.transform.position.x, -2.5f, 0);
         yield return new WaitForSeconds(1f);
 
         sadFlooring = sadflooreffect.GetComponent<BoxCollider2D>();
@@ -106,7 +116,6 @@ public class Boss : EnemyHP
 
     void Update() {
         timer += Time.deltaTime;
-        // transtimer += Time.deltaTime;
         if(angerdoor){
             Angrydoor();
         }
@@ -118,6 +127,7 @@ public class Boss : EnemyHP
             }
         }
     void Angrydoor(){
+        // transtimer += Time.deltaTime;
         if(!islaser){
             pattern1timer += Time.deltaTime;
             }
@@ -137,40 +147,52 @@ public class Boss : EnemyHP
     }
     void Saddoor(){
         if(!init){
-            
             maxShiled = 100;
             curShiled = 100;
+            shiledimage.GetComponent<Image>().sprite = saveUI;
             shiledimage.SetActive(true);
             healthbar.UpdateShieldBar(curShiled,maxShiled);
             init = true;
         }
-        if(isFloor)
-            DrawBox();
         if(timer > 5f){
             if(!isFloor){
-                // droppos.y = 3;
-                Vector3 droppos = rockStart.transform.position;
-                StartCoroutine(sadfloor(droppos));
-                // timer = 0;
-                isFloor = true;
-                
+                sadfloor();
             }
         }
-        if(!player.isStun){
+        if(!player.isStun&&!bossGroggy){
             pattern1timer += Time.deltaTime;
             if(pattern1timer >= 3f){
                 StartCoroutine("SadPattern2");
-                // player.isStun = true;
             }
         }
-        if(transtimer >= 10f){
-            setDoor(happy);
-            BossEffectPool.Instance.ReturnEffectall();
-            transtimer = 0;
-            animator.SetBool("Stun",true);
+        if(curShiled <= 0){
+        transtimer += Time.deltaTime;
+        isFloor = true;
+        bossGroggy = true;
+        BossEffectPool.Instance.ReturnEffectall();
+        pattern1timer = 0;
+        player.getStunoff();
+            if(transtimer >= 7f){
+                int range = Random.Range(0,2);
+                if(range == 0){
+                    setDoor(happy);
+                    transtimer = 0;
+                    init = false;
+                }
+                if(range == 1){
+                    setDoor(angry);
+                    transtimer = 0;
+                    init = false;
+                }
+
+            }
         }
+
     }
     void Happydoor(){
+        transtimer += Time.deltaTime;
+        animator.SetBool("Stun",true);
+        weakness.SetActive(true);      
         if(timer > 3f){
             for(int i = 1; i<= 3; i++){
                 Vector3 brick = GetRandomPointInBox(brickstart);
@@ -179,13 +201,35 @@ public class Boss : EnemyHP
             }
         timer = 0;
         }
+        if(transtimer >= 7f){
+                int range = Random.Range(0,2);
+                if(range == 0){
+                    setDoor(sad);
+                    Debug.Log("슬픔");
+                    transtimer = 0;
+                }
+                if(range == 1){
+                    setDoor(angry);
+                    Debug.Log("화");
+                    transtimer = 0;
+                }
+
+            }
     }
     public void getDamage(int hp){
-        if(curShiled > 0){
+        if(curShiled >= 0){
             curShiled -= hp;
             healthbar.UpdateShieldBar(curShiled,maxShiled);
         }
-        curHelath -= hp;
+        else if(curHealth >= 0){
+            curHealth -= hp;
+            healthbar.UpdateHealthBar(curHealth,maxHealth);
+        }
+        if(curHealth <= 0){
+            Debug.Log("죽음");
+            setDoor(die);
+        }
+
     }
     public void patternoff(){
         pattern1timer = 0;
@@ -220,23 +264,22 @@ public class Boss : EnemyHP
         laser.SetActive(true);
         float laserDuration = 1f; 
         float elapsedTime = 0f;
-        RaycastHit2D rayed = Physics2D.BoxCast(
-            laser.transform.position, 
-            laserSize, 
-            0f, 
-            Vector2.left, 
-            0f, 
-            layerMask
-        );
 
         while (elapsedTime < laserDuration)
         {
+            RaycastHit2D rayed = Physics2D.BoxCast(
+                laser.transform.position, 
+                laserSize, 
+                0f, 
+                Vector2.left, 
+                0f, 
+                layerMask
+            );
             if (rayed.collider != null)
             {
                 if (rayed.collider.CompareTag("Player"))
                 {
                     player.getDamage(laserDmg);
-                    Debug.Log("Player hit by laser!");
                 }
             }
             elapsedTime += Time.deltaTime;
@@ -273,8 +316,6 @@ public class Boss : EnemyHP
         drop.transform.position = position;
         GameObject drops = BossRockPool.Instance.GetBrickFromPool();
         drops.transform.position = positions;
-    
-
     }
     
     IEnumerator SadPattern2() {
@@ -305,16 +346,10 @@ public class Boss : EnemyHP
         }
         return gameObject.transform.position;
     }
-    IEnumerator sadfloor(Vector3 position){
+    void sadfloor(){
         sadflooreffect.SetActive(true);
-        
-        // sadflooreffect = BossEffectPool.Instance.GetfloorEffect();
-        // sadflooreffect.transform.position = new Vector3(position.x,-2.5f,0);
-        yield return new WaitForSeconds(1f);
-        // sadFlooring = sadflooreffect.GetComponent<BoxCollider2D>();
-        // sadFlooring.enabled = true;
-        if(transtimer >= 16f){
-        }
+        DrawBox();
+
     }
     private void DrawBox()
     {
@@ -322,19 +357,22 @@ public class Boss : EnemyHP
         Vector2 rayDirection = Vector2.right;
         float rayDistance = 20;
 
-        RaycastHit2D hit = Physics2D.Raycast(topEdgeCenter, rayDirection, rayDistance);
+        RaycastHit2D hit = Physics2D.Raycast(topEdgeCenter, rayDirection, rayDistance,LayerMask.GetMask("Player"));
         Debug.DrawRay(topEdgeCenter, rayDirection * rayDistance, Color.red);
 
-        // Transform hitTransform = hit.transform;
 
-        if (hit.collider.CompareTag("Player"))
+        if (hit.collider!=null&&hit.collider.CompareTag("Player"))
         {
-            TPlayer player = hit.transform.GetComponentInParent<TPlayer>();
-        }
-        if(player != null ){
             player.getDamage(5);
+        Debug.Log("확인");
+        }else{
+            Debug.Log("플레이어없음");
         }
 
     }
-    
+    private void OnCollisionEnter2D(Collision2D other) {
+        if(other.transform.tag == "Player"){
+            player.getDamage(20);
+        }
+    }
 }

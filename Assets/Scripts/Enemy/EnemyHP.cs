@@ -9,13 +9,15 @@ public class EnemyHP : MonoBehaviour
     [SerializeField]protected enum Type{melee,ranger,elite,Boss};
     [SerializeField]protected Type enemyType;
     [SerializeField]protected int maxHealth = 100;
-    [SerializeField]protected int curHelath;
+    [SerializeField]protected int curHealth;
     [SerializeField]protected int maxShiled = 100;
     [SerializeField]protected int curShiled;
     [SerializeField]protected HealthBarUI healthbar;
     // [SerializeField]protected GameObject particle;
     public virtual void Start()
     {
+        
+        healthbar.UpdateHealthBar(curHealth,maxHealth);
         if(enemyType != Type.Boss)
             healthbar.UpdateShieldBar(curShiled,maxShiled);
     }

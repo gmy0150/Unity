@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
+// using UnityEngine.UIElements;
 
 public class HealthBarUI : MonoBehaviour
 {
@@ -13,14 +14,15 @@ public class HealthBarUI : MonoBehaviour
     [SerializeField] private GameObject Shiled;
     bool delete;
     Animator animator;
+    float timeA;
     public float lerpSpeed = 1.0f;
     private void Awake() {
         animator = GetComponentInChildren<Animator>();
-        if(animator == null)
-        Debug.Log(animator.transform.parent.parent+"애니매이션 없음");
+        // if(animator == null)
+        //Debug.Log(animator.transform.parent.parent+"애니매이션 없음");
     }
     private void Start() {
-        
+
     }
     public void destroyShield() {
         if(delete){
@@ -60,13 +62,23 @@ public class HealthBarUI : MonoBehaviour
         StartCoroutine(SlowHPCoroutine(hp));
     }
     IEnumerator SlowHPCoroutine(float targetHP) {
-    float currentHP = backgroundSlider.value;
-    while (Mathf.Abs(currentHP/targetHP) > 0.05f)  {
+        float currentHP = backgroundSlider.value;
+        // float A = ;
+
+        float startTime = Time.time;
+        timeA += Time.deltaTime;
+        while (Mathf.Abs(currentHP/targetHP) >= 1f )  {
+        // Debug.Log(A);
+            float elapsedTime = Time.time - startTime;
+            if (elapsedTime * lerpSpeed > lerpSpeed) {
+                break;
+            }
             currentHP = Mathf.Lerp(currentHP, targetHP, Time.deltaTime * lerpSpeed);
+            // Debug.Log(currentHP);
             backgroundSlider.value = currentHP;
             yield return null;
         }
-    backgroundSlider.value = targetHP;
+        backgroundSlider.value = targetHP;
     }
     void Update()
     {

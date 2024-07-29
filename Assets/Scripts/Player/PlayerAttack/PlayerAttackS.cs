@@ -11,6 +11,7 @@ public class PlayerAttackS : PlayerAttackState
     public override void Enter()
     {
         base.Enter();
+
     }
     public override void Exit()
     {
@@ -19,5 +20,8 @@ public class PlayerAttackS : PlayerAttackState
     }
     public override void Update(){
         base.Update();
+        if(triggerCalled){
+            PlayerArrowPool.Instance.GetArrow();
+        }
     }
 }

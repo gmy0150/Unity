@@ -26,12 +26,12 @@ public class PlayerArrowPool : MonoBehaviour
         }
     }
     public GameObject GetArrow() {
+        Debug.Log("왜 작동");
         if (ArrowPool.Count == 0) {
             Debug.Log("왜 안생겨");
             InitializePool();
         }
         GameObject Arrow = ArrowPool.Dequeue();
-        Debug.Log(ArrowPool.Count);
         Arrow.SetActive(true);
         Arrow.transform.SetParent(null);
 
@@ -43,9 +43,10 @@ public class PlayerArrowPool : MonoBehaviour
     public void ReturnArrow(GameObject Arrow,float seconds = 0) {
         if(seconds < timer){
             Arrow.SetActive(false);
-            Arrow.transform.localPosition = new Vector3(0,0,0);
             Arrow.transform.SetParent(transform);
-            ArrowPool.Enqueue(Arrow);   
+            Arrow.transform.localPosition = new Vector3(0,0,0);
+            Arrow.transform.rotation = Quaternion.identity;
+            ArrowPool.Enqueue(Arrow);
         }
     }
 }

@@ -32,10 +32,10 @@ public class PlayerJumpATKState : PlayerState
         if(boss.happydoor){
             player.Holding();
         }
-        if(player.IsGroundDetected()){
-            Debug.Log("?!");
+        if(player.IsGroundDetected()&&triggerCalled){
             stateMachine.ChangeState(player.idleState);
         }
+        
         // StopA();
     }
     protected IEnumerator BusyFor()

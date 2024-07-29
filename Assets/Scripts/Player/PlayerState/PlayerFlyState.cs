@@ -38,15 +38,12 @@ public class PlayerFlyState : PlayerState
             jumpcount = 0;
         }
         if(!player.IsGroundDetected()&&Input.GetKeyDown(KeyCode.A)&&!attacked){
-            Debug.Log("확인");
             player.JumpAStart();
         }
         if(!player.IsGroundDetected()&&Input.GetKeyDown(KeyCode.S)&&!attacked){
-            Debug.Log("확인");
             player.JumpSStart();
         }
         if(!player.IsGroundDetected()&&Input.GetKeyDown(KeyCode.D)&&!attacked){
-            Debug.Log("확인");
             player.JumpDStart();
         }
     }

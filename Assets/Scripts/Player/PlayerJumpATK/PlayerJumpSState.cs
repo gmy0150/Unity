@@ -11,6 +11,7 @@ public class PlayerJumpSState : PlayerJumpATKState
     public override void Enter()
     {
         base.Enter();
+        Debug.Log("확인중");
     }
     public override void Exit()
     {
@@ -18,5 +19,10 @@ public class PlayerJumpSState : PlayerJumpATKState
     }
     public override void Update(){
         base.Update();
+        if(triggerCalled){
+            Debug.Log(".00");
+            PlayerArrowPool.Instance.GetArrow();
+            stateMachine.ChangeState(player.idleState);
+        }
     }
 }

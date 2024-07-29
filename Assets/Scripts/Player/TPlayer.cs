@@ -170,7 +170,7 @@ public class TPlayer : MonoBehaviour
             FlipController();
         }
         if(Input.GetKeyDown(KeyCode.Z)){
-            boss2.getDamage(20);
+            boss2.getDamage(50);
         }
         if(IsGroundDetected()){
             notupdate = false;
@@ -197,7 +197,7 @@ public class TPlayer : MonoBehaviour
         isBusy = false;
     }
     public void AnimationTrigger() => stateMachine.currentState.AnimationFinsihTrigger();//함수 호출후 animationFinishTrigger를 작동하게 함
-
+    public void AnimationEnd()=>stateMachine.currentState.AnimationEnd();
     public void MoveTrigger() => stateMachine.currentState.AnimationMoveTrigger();
 
     public void SetVelocity(float _xVelocity,float _yVelocity){
@@ -220,13 +220,13 @@ public class TPlayer : MonoBehaviour
     }
 
     public void FlipController(){
-        if(!damaged){
+        // if(!damaged){
             if(rigid.velocity.x > 2 && !facingRight){//양수로 가고 facingRight가 false일 때 기본이 false니까 오른쪽을 보고있을 때, 오른쪽 이동일 때
                 Flip();
             }else if(rigid.velocity.x < -2 && facingRight){//음수로 가고 facingRight가 true일 때 왼쪽이동 transform.flip을 쓰면 문제가 되는 부분이 많으니까 이렇게 처리해서 하는 부분 이건 공부를 해야겠다.
                 Flip();
             }
-        }
+        // }
     }
     public void AttemptToDash(){
         dashTimeLeft = dashTime;
@@ -516,8 +516,8 @@ public class TPlayer : MonoBehaviour
 
     public void getDamage(int hp){
         if(!atkdmg){
-            atkdmg = true;
             curHP -= hp;
+            atkdmg = true;
             StartCoroutine(OnDamage());
 
         }
@@ -542,7 +542,7 @@ public class TPlayer : MonoBehaviour
                 mesh.color = Color.white;
                 // reactVec = reactVec.normalized;
                 Vector3 reactvec = rigid.velocity.normalized;
-                rigid.AddForce(-reactvec * 10, ForceMode2D.Impulse);
+                rigid.AddForce(-reactvec * 50, ForceMode2D.Impulse);
                 yield return new WaitForSeconds(0.3f);
             }
         }
@@ -577,7 +577,6 @@ public class TPlayer : MonoBehaviour
             stateMachine.ChangeState(idleState);
             if(Input.GetButtonDown("Horizontal")){
                 count++;
-                Debug.Log(count);
             }
             if(count >= 8){
                 getStunoff();
@@ -596,14 +595,12 @@ public class TPlayer : MonoBehaviour
         Debug.Log("확인0.1");
     }
     public IEnumerator KeyA(){
-        notupdate = true;
         
         yield return new WaitForSeconds(0.1f);
         stateMachine.ChangeState(jumpAState);
     
     }
         public IEnumerator KeyS(){
-        notupdate = true;
         
         yield return new WaitForSeconds(0.1f);
         
@@ -611,8 +608,7 @@ public class TPlayer : MonoBehaviour
     
     }
         public IEnumerator KeyD(){
-        notupdate = true;
-        Debug.Log("확인0.2ㄹ");
+        Debug.Log("확인0.2");
         yield return new WaitForSeconds(0.1f);
         stateMachine.ChangeState(jumpDState);
     

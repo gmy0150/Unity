@@ -26,6 +26,7 @@ public class PlayerAnimationTriggers : MonoBehaviour
     private void moveTrigger(){
         player.MoveTrigger();
     }
+    
     void animationEnd(){
         foreach (HealthBarUI health in healthBars){
             // if(health.getHealth() >= 1f)

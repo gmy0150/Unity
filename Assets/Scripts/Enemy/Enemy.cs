@@ -230,7 +230,7 @@ public class Enemy : EnemyHP
             if(bulletd != null){
                 if(bulletd.type == bullet.Type.Skill){
                     isEnter = true;
-                    curHelath -= bulletd.bulletdamgae;
+                    curHealth -= bulletd.bulletdamgae;
                     Vector3 reactVec = transform.position - other.transform.position;
                     StartCoroutine(OnDamage(reactVec));
                     Destroy(other.gameObject);
@@ -238,14 +238,14 @@ public class Enemy : EnemyHP
                     switch(enemyType){
                     case Type.melee:
                     case Type.ranger:
-                        curHelath -= bulletd.bulletdamgae;
+                        curHealth -= bulletd.bulletdamgae;
                     break;
                     case Type.elite:
                         if(curShiled >= 0){
                             curShiled -= 1;
                         }
                         else{
-                        curHelath -= bulletd.bulletdamgae;
+                        curHealth -= bulletd.bulletdamgae;
                         }
                     break;
                     }
@@ -260,10 +260,10 @@ public class Enemy : EnemyHP
                 switch(enemyType){
                     case Type.melee:
                     case Type.ranger:
-                        curHelath -= weapon.Sworddamage;
+                        curHealth -= weapon.Sworddamage;
                     break;
                     case Type.elite:
-                        curHelath -= weapon.Sworddamage;
+                        curHealth -= weapon.Sworddamage;
                     break;
                 }
                 if(weapon.HammerSkill){
@@ -307,10 +307,10 @@ public class Enemy : EnemyHP
             mesh.color = Color.red;
         yield return new WaitForSeconds(0.1f);
         
-        healthbar.UpdateHealthBar(curHelath,maxHealth);
-        if(enemyType == Type.elite)
+        healthbar.UpdateHealthBar(curHealth,maxHealth);
+        if(enemyType == Type.elite&&curShiled >= 0)
             healthbar.UpdateShieldBar(curShiled,maxShiled);
-        if(curHelath > 0){
+        if(curHealth > 0){
             foreach(SpriteRenderer mesh in sprite){
                 mesh.color = Color.white;
                 reactVec = reactVec.normalized;
@@ -331,7 +331,7 @@ public class Enemy : EnemyHP
         if(curShiled > 0){
             curShiled -= damageAmount;
         }else{
-            curHelath -= damageAmount;
+            curHealth -= damageAmount;
             
         }
         
@@ -377,7 +377,7 @@ public class Enemy : EnemyHP
 
     }
     public int getHP(){
-        return curHelath;
+        return curHealth;
     }
     public IEnumerator skillDmg()
     {

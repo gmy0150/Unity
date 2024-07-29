@@ -26,7 +26,6 @@ public class PlayerIdleState : PlayerGroundState
             stateMachine.ChangeState(player.moveState);
         }
         if(boss.happydoor){
-            Debug.Log("?");
             player.Holding();
         }
     }

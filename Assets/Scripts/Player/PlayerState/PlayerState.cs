@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -66,5 +67,6 @@ public class PlayerState
     public virtual void AnimationMoveTrigger(){
         moveTrigger = true;
     }
+    public virtual bool AnimationEnd() => true;
     
 }

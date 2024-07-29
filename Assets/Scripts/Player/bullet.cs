@@ -17,13 +17,14 @@ public class bullet : MonoBehaviour{
     float playerX;
     Rigidbody2D rigid;
     float getx;
+    Boss boss;
+    bool checkdmg;
     public void SetPlayerX(float x)
     {
         playerX = x;
     }
     private void Start() {
         getx = player.facingDir;
-        Debug.Log("재생");
     }
     private void Awake() {
         
@@ -34,6 +35,8 @@ public class bullet : MonoBehaviour{
         gameManager = GameObject.FindWithTag("GameManager").GetComponent<GameManager>(); // 게임 매니저 초기화
 
         rigid = GetComponent<Rigidbody2D>();
+
+        boss = GameObject.FindWithTag("Boss").GetComponent<Boss>();
     }
     private void Update() {
         rigid.velocity = new Vector2(-getx * 20f,rigid.velocity.y);
@@ -51,7 +54,6 @@ public class bullet : MonoBehaviour{
             PlayerArrowPool.Instance.ReturnArrow(gameObject);
         }
         if(collision.CompareTag("Enemy")||collision.CompareTag("Boss")){
-            Debug.Log("적중?");
             if(type == Type.Arrow){
 
                 Vector3 collisionPoint = collision.ClosestPoint(transform.position);
@@ -66,7 +68,9 @@ public class bullet : MonoBehaviour{
                     gameManager.AddArrow(newArrow);
 
                     gameManager.a++;
-                 
+                    if(!checkdmg){
+                        boss.getDamage(10);
+                    }
                     if (gameManager.ArrowCount() > 1)
                     {
                         GameObject oldestArrow = gameManager.GetOldestArrow();
@@ -76,14 +80,17 @@ public class bullet : MonoBehaviour{
                 PlayerArrowPool.Instance.ReturnArrow(gameObject);
                 
             }
-            PlayerArrowPool.Instance.ReturnArrow(gameObject);
 
             }
             else if(type == Type.Skill){
                 enemy.isEnter = true;
             // Destroy(gameObject,5f);
             }
-        }else if(collision == null){
+        }else if(collision.CompareTag("BossHeat")){
+            boss.getDamage(20);
+            checkdmg = true;
+        }
+        if(collision == null){
             PlayerArrowPool.Instance.ReturnArrow(gameObject,5f);
 
         }
