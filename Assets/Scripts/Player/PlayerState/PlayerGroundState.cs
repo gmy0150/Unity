@@ -93,8 +93,6 @@ public class PlayerGroundState : PlayerState
             }if(isSPressed && currentTime - SPressTime >= delayS){
                 if(player.IsGroundDetected()&&!attacked){
                     stateMachine.ChangeState(player.attackSState);
-
-                    // PlayerArrowPool.Instance.GetArrow();
                 }
                 isSPressed = false;
             }if(isDPressed && currentTime - DPressTime >= delayD){

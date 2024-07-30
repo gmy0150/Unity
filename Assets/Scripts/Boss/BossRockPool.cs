@@ -6,8 +6,10 @@ public class BossRockPool : MonoBehaviour
 {
     [SerializeField]private GameObject BossRockPrefab;
     [SerializeField]private GameObject BossBrick;
+    [SerializeField]private GameObject BossStun;
 
     private Queue<GameObject> availableObjects = new Queue<GameObject>();
+    private Queue<GameObject> availableStun = new Queue<GameObject>();
     private Queue<GameObject> availObjects = new Queue<GameObject>();
     public static BossRockPool Instance{get;private set;}
 
@@ -56,6 +58,27 @@ public class BossRockPool : MonoBehaviour
             BrickPool();
         }
         var instance = availObjects.Dequeue();
+        instance.transform.localScale = new Vector3(1f ,1f,1f);
+        instance.SetActive(true);
+        return instance;
+    }
+    private void GrowStun(){
+        for(int i =0; i<10; i++){
+            var instanceToAdd = Instantiate(BossStun);
+            instanceToAdd.transform.localScale = new Vector3(1f ,1f,1f);
+            instanceToAdd.transform.SetParent(transform);
+            AddToStun(instanceToAdd);
+        }
+    }
+    public void AddToStun(GameObject instance){
+        instance.SetActive(false);
+        availableStun.Enqueue(instance);
+    }
+    public GameObject GetFromStun(){
+        if(availableStun.Count == 0){
+            GrowStun();
+        }
+        var instance = availableStun.Dequeue();
         instance.transform.localScale = new Vector3(1f ,1f,1f);
         instance.SetActive(true);
         return instance;

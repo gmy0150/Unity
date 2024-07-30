@@ -18,7 +18,7 @@ public class EnemyHP : MonoBehaviour
     {
         
         healthbar.UpdateHealthBar(curHealth,maxHealth);
-        if(enemyType != Type.Boss)
+        if(enemyType == Type.elite)
             healthbar.UpdateShieldBar(curShiled,maxShiled);
     }
     public virtual void Awake() {

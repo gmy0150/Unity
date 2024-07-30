@@ -95,6 +95,7 @@ public class TPlayer : MonoBehaviour
     float rayDelay = 0.5f;
     float lineLength  = 5.0f;
     [SerializeField]private GameObject playerPrefab;
+    private Vector3 teleportOffset = new Vector3(5f, 0f, 0f); 
 
     public bool isAS{get;private set;}
     [SerializeField]private SpriteRenderer[] sprite;
@@ -147,6 +148,7 @@ public class TPlayer : MonoBehaviour
             if(CheckStun()){
                 stateMachine.currentState.Update();
             }else{
+
                 // stateMachine.ChangeState(idleState);
                 dostun();
             }
@@ -173,7 +175,7 @@ public class TPlayer : MonoBehaviour
             boss2.getDamage(50);
         }
         if(IsGroundDetected()){
-            notupdate = false;
+            // notupdate = false;
         }
 
     }
@@ -220,13 +222,13 @@ public class TPlayer : MonoBehaviour
     }
 
     public void FlipController(){
-        // if(!damaged){
+        if(!damaged){
             if(rigid.velocity.x > 2 && !facingRight){//양수로 가고 facingRight가 false일 때 기본이 false니까 오른쪽을 보고있을 때, 오른쪽 이동일 때
                 Flip();
             }else if(rigid.velocity.x < -2 && facingRight){//음수로 가고 facingRight가 true일 때 왼쪽이동 transform.flip을 쓰면 문제가 되는 부분이 많으니까 이렇게 처리해서 하는 부분 이건 공부를 해야겠다.
                 Flip();
             }
-        // }
+        }
     }
     public void AttemptToDash(){
         dashTimeLeft = dashTime;
@@ -336,7 +338,7 @@ public class TPlayer : MonoBehaviour
         rigid.velocity = Vector2.zero;
         stateMachine.ChangeState(idleState);
         SDtimer = 0;
-    }
+    } 
     bool checkbossAhead() {
         float direction = Mathf.Sign(transform.localScale.x); // 플레이어의 방향을 구함
         Vector2 raycastStart = rigid.position + Vector2.right * 0.5f * facingDir;
@@ -464,7 +466,7 @@ public class TPlayer : MonoBehaviour
             GameObject bullet = Instantiate(SkillObj, bulletPosition, rotation);
             Rigidbody2D bulletRigidbody = bullet.GetComponent<Rigidbody2D>();
             if(bulletRigidbody != null){
-                bulletRigidbody.AddForce(transform.right * (facingDir * -50), ForceMode2D.Impulse);
+                bulletRigidbody.AddForce(transform.right * (facingDir * 50), ForceMode2D.Impulse);
             }
             bullet.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
             StartCoroutine(detailASD());
@@ -519,6 +521,7 @@ public class TPlayer : MonoBehaviour
             curHP -= hp;
             atkdmg = true;
             StartCoroutine(OnDamage());
+        notupdate = true;
 
         }
         if(curHP <= 0){
@@ -533,18 +536,32 @@ public class TPlayer : MonoBehaviour
 
     IEnumerator OnDamage(){
         damaged = true;
+
         foreach(SpriteRenderer mesh in sprite)
             mesh.color = Color.red;
         yield return new WaitForSeconds(0.1f);
 
         if(curHP > 0){
-            foreach(SpriteRenderer mesh in sprite){
-                mesh.color = Color.white;
-                // reactVec = reactVec.normalized;
-                Vector3 reactvec = rigid.velocity.normalized;
-                rigid.AddForce(-reactvec * 50, ForceMode2D.Impulse);
-                yield return new WaitForSeconds(0.3f);
-            }
+            foreach (SpriteRenderer mesh in sprite)
+{
+    mesh.color = Color.white;
+
+    // 튕겨나가는 방향 설정
+    float reactDirX = facingDir * 2; // 오른쪽일 때는 왼쪽으로, 왼쪽일 때는 오른쪽으로
+    float reactDirY = 1f; // 항상 위로 튕겨나가도록 설정
+
+    // 튕겨나가는 힘 벡터 설정
+    Vector2 reactvec = new Vector2(reactDirX, reactDirY).normalized;
+
+    // 튕겨나가는 힘의 크기 설정
+    float forceMagnitude = 10f; // 일정한 크기의 힘을 설정
+
+    // 일관된 튕겨나가는 힘 적용
+    rigid.velocity = reactvec * forceMagnitude;
+
+    yield return new WaitForSeconds(0.3f);
+    notupdate = false;
+}   
         }
         else{
             foreach(SpriteRenderer mesh in sprite){
@@ -558,7 +575,7 @@ public class TPlayer : MonoBehaviour
     }
     public void getStun(){
         isStun = true;
-        rigid.constraints = RigidbodyConstraints2D.FreezePositionY|RigidbodyConstraints2D.FreezeRotation;
+        rigid.constraints = RigidbodyConstraints2D.FreezePositionY|RigidbodyConstraints2D.FreezePositionX|RigidbodyConstraints2D.FreezeRotation;
         rigid.velocity = Vector2.zero;       
         Boss boss = GameObject.FindGameObjectWithTag("Boss").GetComponent<Boss>();
         boss.patternoff();
@@ -566,11 +583,65 @@ public class TPlayer : MonoBehaviour
             Flip();
         }
     }
+    public void chargeS(){
+        StartCoroutine(ChargeSword());
+    }
+        IEnumerator ChargeSword(){
+        yield return new WaitForSeconds(0.1f);
+        
+        LayerMask wallLayerMask = LayerMask.GetMask("Wall");
+        LayerMask FloorLayer = LayerMask.GetMask("Floor");
+        LayerMask BossLayerMask = LayerMask.GetMask("Boss");
+        Vector3 teleport = Vector3.zero;
+        
+        Vector3 playerPos = transform.position;
+
+        if(facingDir == 1){
+            teleport += Vector3.left;
+        }
+        else if(facingDir == -1){
+            teleport += Vector3.right;
+        }
+        Vector3 teleportPosition = playerPos + (teleport.normalized * teleportOffset.magnitude);
+        Debug.DrawRay(playerPos, teleportPosition - playerPos, Color.blue,3f);
+        RaycastHit2D hit = Physics2D.Raycast(playerPos, teleportPosition - playerPos, Vector3.Distance(teleportPosition, playerPos), wallLayerMask|BossLayerMask|FloorLayer);
+        if (hit.collider != null){
+            // 벽이 있으면 텔포 위치를 벽의 바로 앞으로 이동
+            if(!hit.collider.CompareTag("Floor")){
+            teleportPosition = hit.point - (hit.normal * 0.1f);
+            //hit.point로 ray로 벽이 있는지 확인하여 확인된 곳에 위치를 point로 저장 
+            //hit.normal * 0.1f로 충돌지점에서 플레이어를 밀어냄
+            }
+            else{
+                teleportPosition = hit.point + (hit.normal * 0.5f);
+            }
+            if(hit.collider.CompareTag("Boss")){
+                    
+                hit.collider.GetComponent<Enemy>().TakeDamage(100);
+            }
+        }
+        // LayerMask enemyLayerMask = LayerMask.GetMask("Enemy");
+        // RaycastHit2D[] hits = Physics2D.RaycastAll(playerPos, teleportPosition - playerPos, Vector3.Distance(teleportPosition, playerPos), enemyLayerMask);
+
+        // foreach (RaycastHit2D hited in hits)
+        // {
+        //     if (hited.collider.CompareTag("Enemy"))
+        //     {
+        //         hited.collider.GetComponent<Enemy>().TakeDamage(100);
+
+        //         Debug.Log("플레이어 뒤에 적이 감지되었습니다.");
+        //         Debug.Log(hited.collider.name);
+        //     }
+        // }
+        yield return new WaitForSeconds(0.1f);
+        transform.position = teleportPosition;
+        yield return new WaitForSeconds(0.3f);
+        stateMachine.ChangeState(idleState);
+    }    
+    
     public void getStunoff(){
         isStun = false;
         rigid.constraints = RigidbodyConstraints2D.FreezeRotation;
-
-        Debug.Log(isStun);
     }
     void dostun(){
         if(isStun){
@@ -592,7 +663,6 @@ public class TPlayer : MonoBehaviour
     }
     public void JumpDStart(){
         StartCoroutine(KeyD());
-        Debug.Log("확인0.1");
     }
     public IEnumerator KeyA(){
         

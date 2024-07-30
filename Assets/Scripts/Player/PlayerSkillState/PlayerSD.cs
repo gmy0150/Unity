@@ -10,6 +10,7 @@ public class PlayerSD : PlayerSkillState
     public override void Enter()
     {
         base.Enter();
+        player.chargeS();
     }
     public override void Exit()
     {
@@ -18,8 +19,5 @@ public class PlayerSD : PlayerSkillState
     }
     public override void Update(){
         base.Update();
-        // stateMachine.ChangeState(player.idleState);
-        player.SDSkill();
-
     }
 }

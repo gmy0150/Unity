@@ -23,7 +23,8 @@ public class bullet : MonoBehaviour{
     {
         playerX = x;
     }
-    private void Start() {
+
+    private void OnEnable() {
         getx = player.facingDir;
     }
     private void Awake() {
@@ -39,7 +40,7 @@ public class bullet : MonoBehaviour{
         boss = GameObject.FindWithTag("Boss").GetComponent<Boss>();
     }
     private void Update() {
-        rigid.velocity = new Vector2(-getx * 20f,rigid.velocity.y);
+        // rigid.velocity = new Vector2(-getx * 20f,rigid.velocity.y);
     }
     void OnCollisionEnter2D(Collision2D collision) {
     }
@@ -64,6 +65,7 @@ public class bullet : MonoBehaviour{
                     if(getx > 0){
                         newArrow.transform.localScale = new Vector3(-1,1,1);
                     }
+
                     newArrow.transform.parent = collision.transform;
                     gameManager.AddArrow(newArrow);
 
@@ -78,8 +80,8 @@ public class bullet : MonoBehaviour{
                         Destroy(oldestArrow);
                     }
                 PlayerArrowPool.Instance.ReturnArrow(gameObject);
+                }
                 
-            }
 
             }
             else if(type == Type.Skill){

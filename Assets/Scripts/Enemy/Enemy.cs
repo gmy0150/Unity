@@ -67,7 +67,6 @@ public class Enemy : EnemyHP
         if(!isEnter){
             EnemyAI();
             detectPlayer();
-
         }
     }
     void detectPlayer(){

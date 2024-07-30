@@ -46,6 +46,7 @@ public class Boss : EnemyHP
     public GameObject weakness;
     bool bossdie;
     bool bossGroggy;
+    int savehp;
     // public Sprite angryImage;
     // public Sprite saveImage;
 
@@ -127,7 +128,7 @@ public class Boss : EnemyHP
             }
         }
     void Angrydoor(){
-        // transtimer += Time.deltaTime;
+        transtimer += Time.deltaTime;
         if(!islaser){
             pattern1timer += Time.deltaTime;
             }
@@ -140,7 +141,7 @@ public class Boss : EnemyHP
             StartCoroutine(DropWithEffect(dropPosition));
             timer = 0;
         }
-        if(transtimer > 5){
+        if(transtimer > 10){
             setDoor(sad);
             transtimer = 0;
         }
@@ -162,35 +163,56 @@ public class Boss : EnemyHP
         if(!player.isStun&&!bossGroggy){
             pattern1timer += Time.deltaTime;
             if(pattern1timer >= 3f){
-                StartCoroutine("SadPattern2");
+                // StartCoroutine("SadPattern2");
+                Vector3 dropPosition = GetRandomPointInBox(rockStart);
+                StartCoroutine(DropStun(dropPosition));
+                pattern1timer = 0;
             }
         }
         if(curShiled <= 0){
-        transtimer += Time.deltaTime;
-        isFloor = true;
-        bossGroggy = true;
-        BossEffectPool.Instance.ReturnEffectall();
-        pattern1timer = 0;
-        player.getStunoff();
+            transtimer += Time.deltaTime;
+            isFloor = true;
+            bossGroggy = true;
+            BossEffectPool.Instance.ReturnEffectall();
+            pattern1timer = 0;
+            player.getStunoff();
             if(transtimer >= 7f){
                 int range = Random.Range(0,2);
                 if(range == 0){
                     setDoor(happy);
-                    transtimer = 0;
-                    init = false;
                 }
                 if(range == 1){
                     setDoor(angry);
-                    transtimer = 0;
-                    init = false;
                 }
-
+                transtimer = 0;
+                init = false;
+                bossGroggy = false;
+                isFloor = false;
             }
         }
-
     }
     void Happydoor(){
+        if(!init){
+            init = true;
+            savehp = curHealth;
+        }
+        if(savehp - curHealth >= 100){
         transtimer += Time.deltaTime;
+            Debug.Log("체력");
+            if(transtimer >= 7f){
+            int range = Random.Range(0,2);
+            if(range == 0){
+                setDoor(sad);
+                Debug.Log("슬픔");
+            }
+            if(range == 1){
+                setDoor(angry);
+                Debug.Log("화");
+            }
+                transtimer = 0;
+                init = false;
+            }
+        }
         animator.SetBool("Stun",true);
         weakness.SetActive(true);      
         if(timer > 3f){
@@ -201,23 +223,10 @@ public class Boss : EnemyHP
             }
         timer = 0;
         }
-        if(transtimer >= 7f){
-                int range = Random.Range(0,2);
-                if(range == 0){
-                    setDoor(sad);
-                    Debug.Log("슬픔");
-                    transtimer = 0;
-                }
-                if(range == 1){
-                    setDoor(angry);
-                    Debug.Log("화");
-                    transtimer = 0;
-                }
-
-            }
+        
     }
     public void getDamage(int hp){
-        if(curShiled >= 0){
+        if(curShiled > 0){
             curShiled -= hp;
             healthbar.UpdateShieldBar(curShiled,maxShiled);
         }
@@ -311,6 +320,18 @@ public class Boss : EnemyHP
         yield return new WaitForSeconds(2f); 
         BossRockPool.Instance.AddToPool(drop);
     }
+    IEnumerator DropStun(Vector3 position) {
+        GameObject effect = BossEffectPool.Instance.GetEffect();
+        effect.transform.position = new Vector3(position.x,-2.5f,0);
+        yield return new WaitForSeconds(2f); 
+        BossEffectPool.Instance.ReturnEffect(effect);
+        yield return new WaitForSeconds(0.3f); 
+
+        GameObject drop = BossRockPool.Instance.GetFromStun();
+        drop.transform.position = new Vector3(position.x,-2.5f,0);
+        yield return new WaitForSeconds(2f); 
+        BossRockPool.Instance.AddToStun(drop);
+    }
     void StartBrick(Vector3 position, Vector3 positions){
         GameObject drop = BossRockPool.Instance.GetBrickFromPool();
         drop.transform.position = position;
@@ -319,11 +340,10 @@ public class Boss : EnemyHP
     }
     
     IEnumerator SadPattern2() {
-        // GameObject effect = BossEffectPool.Instance.GetSadPattern2();
-        // effect.transform.position = new Vector3(effect.transform.position.x,-2.5f,0);
-        // yield return new WaitForSeconds(2f); 
-        // BossEffectPool.Instance.ReturnSadPattern2();
-        // player = GameObject.FindGameObjectWithTag("Player").GetComponentInParent<TPlayer>();
+        GameObject effect = BossEffectPool.Instance.GetSadPattern2();
+        effect.transform.position = new Vector3(effect.transform.position.x,-2.5f,0);
+        yield return new WaitForSeconds(2f); 
+        BossEffectPool.Instance.ReturnSadPattern2();
         player.getStun();
         yield return new WaitForSeconds(0.3f); 
 
@@ -364,11 +384,7 @@ public class Boss : EnemyHP
         if (hit.collider!=null&&hit.collider.CompareTag("Player"))
         {
             player.getDamage(5);
-        Debug.Log("확인");
-        }else{
-            Debug.Log("플레이어없음");
         }
-
     }
     private void OnCollisionEnter2D(Collision2D other) {
         if(other.transform.tag == "Player"){
