@@ -18,7 +18,6 @@ public class GameManager : MonoBehaviour
     {
         if (arrows.Contains(arrow))
         {
-            // PlayerArrowPool.Instance.ReturnArrow(arrow);
             arrows.Remove(arrow);
             Destroy(arrow);
         }

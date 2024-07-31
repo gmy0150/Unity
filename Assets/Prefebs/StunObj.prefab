@@ -177,4 +177,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 4601195567292687633}
   targetScaleY: 6
-  duration: 0.3
+  duration: 0.2

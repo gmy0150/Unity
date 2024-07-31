@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -14,14 +15,15 @@ public class BossStun : MonoBehaviour
 
     private Vector3 originalScale;
 
-    void Start()
+    void Awake()
     {
         originalScale = target.localScale;
         boss = GameObject.FindGameObjectWithTag("Boss").GetComponent<Boss>();
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<TPlayer>();
+    }
+    void OnEnable(){
         IncreaseScale();
     }
-
     public void IncreaseScale()
     {
         StartCoroutine(IncreaseScaleCoroutine());
@@ -53,7 +55,7 @@ public class BossStun : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D other) {
         if(other.transform.tag == "Player"){
             player.getStun();
-            player.getDamage(5);
+            player.getDamage(10);
         }
     }
     // Update is called once per frame

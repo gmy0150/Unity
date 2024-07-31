@@ -10,16 +10,19 @@ public class PlayerAttackState : PlayerState
     protected float lastTimeAttacked;
     protected float deletecombo;
     protected LayerMask enemyLayer;
+    protected LayerMask bossLayer;
     protected bool var;
     protected bool sword;
     protected bool hammer;
     protected float attackSpeed;
     protected int damage;
+    protected int ShiledDamage;
     private float attackRange;
-    public PlayerAttackState(TPlayer _player, PlayerStateMachine _stateMachine, string _animBoolName,float _attackSpeed,int _damage,float _attackRange,float _deleteCombo, int _comboCount) : base(_player, _stateMachine, _animBoolName)
+    public PlayerAttackState(TPlayer _player, PlayerStateMachine _stateMachine, string _animBoolName,float _attackSpeed,int _damage,int _shiledDMG,float _attackRange,float _deleteCombo, int _comboCount) : base(_player, _stateMachine, _animBoolName)
     {
         attackSpeed = _attackSpeed;
         damage = _damage;
+        ShiledDamage = _shiledDMG;
         attackRange = _attackRange;
         deletecombo = _deleteCombo;
         comboCounter = _comboCount;
@@ -37,7 +40,7 @@ public class PlayerAttackState : PlayerState
             combocount = 0;
         player.anim.SetInteger("ComboCounter",combocount);
         enemyLayer =  LayerMask.GetMask ("Enemy");
-
+        bossLayer = LayerMask.GetMask("Boss");
     }
     public override void Exit()
     {
@@ -65,11 +68,14 @@ public class PlayerAttackState : PlayerState
         }
     }
     void CheckAttack(){
-        RaycastHit2D hit =Physics2D.Raycast(player.transform.position, player.transform.right, attackRange,enemyLayer);
+        RaycastHit2D hit =Physics2D.Raycast(player.transform.position, player.transform.right, attackRange,enemyLayer|bossLayer);
         if(hit.collider != null){
             Enemy enemy = hit.transform.GetComponent<Enemy>();
             if(enemy != null){
-                enemy.TakeDamage(damage);
+                enemy.TakeDamage(damage,ShiledDamage);
+            }
+            if(hit.collider.tag == "Boss"){
+                boss.getDamage(damage,ShiledDamage);
             }
         }
     } 

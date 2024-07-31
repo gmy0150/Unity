@@ -22,6 +22,7 @@ public class PlayerAttackS : PlayerAttackState
         base.Update();
         if(triggerCalled){
             PlayerArrowPool.Instance.GetArrow();
+
         }
     }
 }

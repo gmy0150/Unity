@@ -33,6 +33,7 @@ public class Boss : EnemyHP
     float timer;
     float dmgtimer;
     public static float pattern1timer;
+    public float pattern2timer;
     bool atk;
     public float transtimer = 0;
     Rigidbody2D rigid;
@@ -47,8 +48,6 @@ public class Boss : EnemyHP
     bool bossdie;
     bool bossGroggy;
     int savehp;
-    // public Sprite angryImage;
-    // public Sprite saveImage;
 
     Animator animator;
     bool init;
@@ -92,23 +91,24 @@ public class Boss : EnemyHP
     private IEnumerator InitializeBoxCollider()
     {
         sadflooreffect = BossEffectPool.Instance.GetfloorEffect();
-        RaycastHit2D hit = Physics2D.Raycast(
+        RaycastHit2D[] hit = Physics2D.RaycastAll(
             rockStart.transform.position, 
             Vector2.down, 
             Mathf.Infinity, 
             LayerMask.GetMask("Floor")
         );
-
-        if (hit.collider != null)
-        {
-            // 충돌한 floor 레이어의 y 좌표를 사용
-            float floorY = hit.collider.bounds.max.y;
+        
+        foreach (RaycastHit2D hits in hit) {
+        if (hits.transform.CompareTag("Floor")) {
+            Debug.Log("확인");
+            float floorY = hits.collider.bounds.max.y;
             sadflooreffect.transform.position = new Vector3(rockStart.transform.position.x, floorY, 0);
+            break; // 찾았으니 반복문 종료
         }
+    }
         yield return new WaitForSeconds(1f);
 
         sadFlooring = sadflooreffect.GetComponent<BoxCollider2D>();
-        ParticleSystem sadFlooreff = sadFlooring.GetComponent<ParticleSystem>();
         sadFlooring.enabled = true;
 
         boxCenter = sadFlooring.bounds.center;
@@ -125,8 +125,8 @@ public class Boss : EnemyHP
         }
         if(happydoor){
             Happydoor();
-            }
         }
+    }
     void Angrydoor(){
         transtimer += Time.deltaTime;
         if(!islaser){
@@ -136,7 +136,7 @@ public class Boss : EnemyHP
             StartCoroutine("Laser");
             pattern1timer = 0;
         }
-        if(timer >= dropInterval){   
+        if(timer >= dropInterval){
             Vector3 dropPosition = GetRandomPointInBox(rockStart);
             StartCoroutine(DropWithEffect(dropPosition));
             timer = 0;
@@ -148,12 +148,21 @@ public class Boss : EnemyHP
     }
     void Saddoor(){
         if(!init){
-            maxShiled = 100;
-            curShiled = 100;
+            maxShiled = 400;
+            curShiled = 400;
             shiledimage.GetComponent<Image>().sprite = saveUI;
             shiledimage.SetActive(true);
             healthbar.UpdateShieldBar(curShiled,maxShiled);
             init = true;
+        }
+        pattern2timer += Time.deltaTime;
+        if(pattern2timer >= 5f){
+            float randomvalue = Random.Range(0f,1f);
+            Debug.Log(randomvalue);
+            if(randomvalue< 0.1f){
+                StartCoroutine(SadPattern3());
+            }
+            pattern2timer = 0;
         }
         if(timer > 5f){
             if(!isFloor){
@@ -162,8 +171,7 @@ public class Boss : EnemyHP
         }
         if(!player.isStun&&!bossGroggy){
             pattern1timer += Time.deltaTime;
-            if(pattern1timer >= 3f){
-                // StartCoroutine("SadPattern2");
+            if(pattern1timer >= 2f){
                 Vector3 dropPosition = GetRandomPointInBox(rockStart);
                 StartCoroutine(DropStun(dropPosition));
                 pattern1timer = 0;
@@ -195,26 +203,10 @@ public class Boss : EnemyHP
         if(!init){
             init = true;
             savehp = curHealth;
+            weakness.SetActive(true);      
+            animator.SetBool("Stun",true);
+
         }
-        if(savehp - curHealth >= 100){
-        transtimer += Time.deltaTime;
-            Debug.Log("체력");
-            if(transtimer >= 7f){
-            int range = Random.Range(0,2);
-            if(range == 0){
-                setDoor(sad);
-                Debug.Log("슬픔");
-            }
-            if(range == 1){
-                setDoor(angry);
-                Debug.Log("화");
-            }
-                transtimer = 0;
-                init = false;
-            }
-        }
-        animator.SetBool("Stun",true);
-        weakness.SetActive(true);      
         if(timer > 3f){
             for(int i = 1; i<= 3; i++){
                 Vector3 brick = GetRandomPointInBox(brickstart);
@@ -223,11 +215,28 @@ public class Boss : EnemyHP
             }
         timer = 0;
         }
+        if(savehp - curHealth >= 100){
+            transtimer += Time.deltaTime;
+            if(transtimer >= 7f){
+                int range = Random.Range(0,2);
+                if(range == 0){
+                    setDoor(sad);
+                    Debug.Log("슬픔");
+                }
+                if(range == 1){
+                    setDoor(angry);
+                    Debug.Log("화");
+                }
+                transtimer = 0;
+                init = false;
+                weakness.SetActive(false);
+            }
+        }
         
     }
-    public void getDamage(int hp){
+    public void getDamage(int hp,int shiledhp){
         if(curShiled > 0){
-            curShiled -= hp;
+            curShiled -= shiledhp;
             healthbar.UpdateShieldBar(curShiled,maxShiled);
         }
         else if(curHealth >= 0){
@@ -339,19 +348,12 @@ public class Boss : EnemyHP
         drops.transform.position = positions;
     }
     
-    IEnumerator SadPattern2() {
-        GameObject effect = BossEffectPool.Instance.GetSadPattern2();
-        effect.transform.position = new Vector3(effect.transform.position.x,-2.5f,0);
-        yield return new WaitForSeconds(2f); 
-        BossEffectPool.Instance.ReturnSadPattern2();
-        player.getStun();
-        yield return new WaitForSeconds(0.3f); 
 
-        // GameObject drop = BossRockPool.Instance.GetFromPool();
-
-        // drop.transform.position = position;
-        // yield return new WaitForSeconds(2f); 
-        // BossRockPool.Instance.AddToPool(drop);
+    public IEnumerator SadPattern3(){
+        tlaser.SetActive(true);
+        yield return new WaitForSeconds(1f);
+        player.BossPattern3();
+        tlaser.SetActive(false);
     }
     Vector3 GetRandomPointInBox(GameObject gameObject){
         BoxCollider2D collider = gameObject.GetComponent<BoxCollider2D>();

@@ -288,7 +288,7 @@ public class Player : MonoBehaviour{
             anim.ResetTrigger("doShot");
             Debug.Log("ASD");
             isSkillasd = true;
-            CreateBullet();
+            // CreateBullet();
         }
         
     }
@@ -347,7 +347,7 @@ public class Player : MonoBehaviour{
         OnBow();
         isMove = true;
         StartCoroutine("Delay");
-        CreateBullet();
+        // CreateBullet();
     }
     
     void AtkCool(string AtkEnum){
@@ -482,48 +482,48 @@ public class Player : MonoBehaviour{
         AtkCool("Hammer");
     }
 
-    void CreateBullet(){
-        if(isSkillasd){
-            Vector3 bulletPosition = transform.position + transform.up * 1f;
-            float direction = transform.localScale.x > 0 ? -1 : 1;
+    // void CreateBullet(){
+    //     if(isSkillasd){
+    //         Vector3 bulletPosition = transform.position + transform.up * 1f;
+    //         float direction = transform.localScale.x > 0 ? -1 : 1;
 
-            Quaternion rotation = Quaternion.Euler(0, 0, direction > 0 ? -90f : 90f);
+    //         Quaternion rotation = Quaternion.Euler(0, 0, direction > 0 ? -90f : 90f);
             
-            GameObject bullet = Instantiate(SkillObj, bulletPosition, rotation);
+    //         GameObject bullet = Instantiate(SkillObj, bulletPosition, rotation);
 
-            Rigidbody2D bulletRigidbody = bullet.GetComponent<Rigidbody2D>();
-            if(bulletRigidbody != null){
-                if(transform.localScale.x > 0){
-                    bulletRigidbody.AddForce(transform.right * -50, ForceMode2D.Impulse);
-                }if(transform.localScale.x < 0){
-                    bulletRigidbody.AddForce(transform.right * 50, ForceMode2D.Impulse);
-                }
+    //         Rigidbody2D bulletRigidbody = bullet.GetComponent<Rigidbody2D>();
+    //         if(bulletRigidbody != null){
+    //             if(transform.localScale.x > 0){
+    //                 bulletRigidbody.AddForce(transform.right * -50, ForceMode2D.Impulse);
+    //             }if(transform.localScale.x < 0){
+    //                 bulletRigidbody.AddForce(transform.right * 50, ForceMode2D.Impulse);
+    //             }
                 
-                bullet.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
-            }
-            StartCoroutine("Skillasd");
-            Destroy(bullet,5);
-        }
-        else if(!isSkill){
-            Vector3 bulletPosition = transform.position + transform.up * 0.3f;
-            GameObject bullet = Instantiate(ArrowObj,bulletPosition,Quaternion.identity);
-            Rigidbody2D bulletRigidbody = bullet.GetComponent<Rigidbody2D>();
-            bullet bulletScript = bullet.GetComponent<bullet>();
-            if (bulletScript != null)
-            {
-                bulletScript.SetPlayerX(transform.position.x);
-            }
-            if(bulletRigidbody != null){
-                if(transform.localScale.x < 0){
-                    bulletRigidbody.AddForce(transform.right * 20, ForceMode2D.Impulse);
-                }
-                else{
-                    bulletRigidbody.AddForce(transform.right * -20, ForceMode2D.Impulse);
-                    bullet.transform.localScale = new Vector3(-1, 1, 1);
-                }
-            }
-        }
-    }
+    //             bullet.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
+    //         }
+    //         StartCoroutine("Skillasd");
+    //         Destroy(bullet,5);
+    //     }
+    //     else if(!isSkill){
+    //         Vector3 bulletPosition = transform.position + transform.up * 0.3f;
+    //         GameObject bullet = Instantiate(ArrowObj,bulletPosition,Quaternion.identity);
+    //         Rigidbody2D bulletRigidbody = bullet.GetComponent<Rigidbody2D>();
+    //         bullet bulletScript = bullet.GetComponent<bullet>();
+    //         if (bulletScript != null)
+    //         {
+    //             // bulletScript.SetPlayerX(transform.position.x);
+    //         }
+    //         // if(bulletRigidbody != null){
+    //         //     if(transform.localScale.x < 0){
+    //         //         bulletRigidbody.AddForce(transform.right * 20, ForceMode2D.Impulse);
+    //         //     }
+    //         //     else{
+    //         //         bulletRigidbody.AddForce(transform.right * -20, ForceMode2D.Impulse);
+    //         //         bullet.transform.localScale = new Vector3(-1, 1, 1);
+    //         //     }
+    //         // }
+    //     }
+    // }
 
 
     IEnumerator detailSD(){
@@ -637,7 +637,7 @@ public class Player : MonoBehaviour{
                 Vector3 targetPosition = enemyTransform.position - enemyTransform.forward * 2; // 적의 위치에서 앞으로 2만큼 떨어진 곳으로 설정
                 GameObject playerClone = Instantiate(playerPrefab, targetPosition, Quaternion.identity);
                 Destroy(gameObject);
-                enemy.TakeDamage(100);
+                // enemy.TakeDamage(100);
                 enemy.isEnter = false;
             }
         }
@@ -691,73 +691,73 @@ public class Player : MonoBehaviour{
         
     }
 
-    IEnumerator ChargeSword(){
-        yield return new WaitForSeconds(0.1f);
-        Debug.Log("텔포");
+    // IEnumerator ChargeSword(){
+    //     yield return new WaitForSeconds(0.1f);
+    //     Debug.Log("텔포");
         
-        LayerMask wallLayerMask = LayerMask.GetMask("Wall");
-        LayerMask FloorLayer = LayerMask.GetMask("Floor");
-        LayerMask BossLayerMask = LayerMask.GetMask("Boss");
-        Vector3 teleportDirection = Vector3.zero;
-        if(Input.GetKey(KeyCode.LeftArrow)){
-            teleportDirection += Vector3.left;
-        }
-        else if(Input.GetKey(KeyCode.RightArrow)){
-            teleportDirection += Vector3.right;
-        }
-        else if(Input.GetKey(KeyCode.UpArrow)){
-            teleportDirection += Vector3.up;
-        }
-        else if(Input.GetKey(KeyCode.DownArrow)){
-            teleportDirection += Vector3.down;
-        }
-        else if (transform.localScale.x > 0) {
-            teleportDirection += Vector3.left;
-        }
-        else if (transform.localScale.x < 0) {
-            teleportDirection += Vector3.right;
-        }
-        Vector3 playerPos = transform.position;
-        Vector3 teleportPosition = playerPos + (teleportDirection.normalized * teleportOffset.magnitude);
-        Debug.DrawRay(playerPos, teleportPosition - playerPos, Color.blue,3f);
-        RaycastHit2D hit = Physics2D.Raycast(playerPos, teleportPosition - playerPos, Vector3.Distance(teleportPosition, playerPos), wallLayerMask|BossLayerMask|FloorLayer);
-        if (hit.collider != null){
-            // 벽이 있으면 텔포 위치를 벽의 바로 앞으로 이동
-            if(!hit.collider.CompareTag("Floor")){
-            teleportPosition = hit.point - (hit.normal * 0.1f);
-            //hit.point로 ray로 벽이 있는지 확인하여 확인된 곳에 위치를 point로 저장 
-            //hit.normal * 0.1f로 충돌지점에서 플레이어를 밀어냄
-            }
-            else{
-                teleportPosition = hit.point + (hit.normal * 0.5f);
-            }
-            if(hit.collider.CompareTag("Boss")){
+    //     LayerMask wallLayerMask = LayerMask.GetMask("Wall");
+    //     LayerMask FloorLayer = LayerMask.GetMask("Floor");
+    //     LayerMask BossLayerMask = LayerMask.GetMask("Boss");
+    //     Vector3 teleportDirection = Vector3.zero;
+    //     if(Input.GetKey(KeyCode.LeftArrow)){
+    //         teleportDirection += Vector3.left;
+    //     }
+    //     else if(Input.GetKey(KeyCode.RightArrow)){
+    //         teleportDirection += Vector3.right;
+    //     }
+    //     else if(Input.GetKey(KeyCode.UpArrow)){
+    //         teleportDirection += Vector3.up;
+    //     }
+    //     else if(Input.GetKey(KeyCode.DownArrow)){
+    //         teleportDirection += Vector3.down;
+    //     }
+    //     else if (transform.localScale.x > 0) {
+    //         teleportDirection += Vector3.left;
+    //     }
+    //     else if (transform.localScale.x < 0) {
+    //         teleportDirection += Vector3.right;
+    //     }
+    //     Vector3 playerPos = transform.position;
+    //     Vector3 teleportPosition = playerPos + (teleportDirection.normalized * teleportOffset.magnitude);
+    //     Debug.DrawRay(playerPos, teleportPosition - playerPos, Color.blue,3f);
+    //     RaycastHit2D hit = Physics2D.Raycast(playerPos, teleportPosition - playerPos, Vector3.Distance(teleportPosition, playerPos), wallLayerMask|BossLayerMask|FloorLayer);
+    //     if (hit.collider != null){
+    //         // 벽이 있으면 텔포 위치를 벽의 바로 앞으로 이동
+    //         if(!hit.collider.CompareTag("Floor")){
+    //         teleportPosition = hit.point - (hit.normal * 0.1f);
+    //         //hit.point로 ray로 벽이 있는지 확인하여 확인된 곳에 위치를 point로 저장 
+    //         //hit.normal * 0.1f로 충돌지점에서 플레이어를 밀어냄
+    //         }
+    //         else{
+    //             teleportPosition = hit.point + (hit.normal * 0.5f);
+    //         }
+    //         if(hit.collider.CompareTag("Boss")){
                     
-                hit.collider.GetComponent<Enemy>().TakeDamage(100);
-            }
-        }
-        LayerMask enemyLayerMask = LayerMask.GetMask("Enemy");
-        RaycastHit2D[] hits = Physics2D.RaycastAll(playerPos, teleportPosition - playerPos, Vector3.Distance(teleportPosition, playerPos), enemyLayerMask);
+    //             hit.collider.GetComponent<Enemy>().TakeDamage(100);
+    //         }
+    //     }
+    //     LayerMask enemyLayerMask = LayerMask.GetMask("Enemy");
+    //     RaycastHit2D[] hits = Physics2D.RaycastAll(playerPos, teleportPosition - playerPos, Vector3.Distance(teleportPosition, playerPos), enemyLayerMask);
 
-        foreach (RaycastHit2D hited in hits)
-        {
-            if (hited.collider.CompareTag("Enemy"))
-            {
-                hited.collider.GetComponent<Enemy>().TakeDamage(100);
+    //     foreach (RaycastHit2D hited in hits)
+    //     {
+    //         if (hited.collider.CompareTag("Enemy"))
+    //         {
+    //             hited.collider.GetComponent<Enemy>().TakeDamage(100);
 
-                Debug.Log("플레이어 뒤에 적이 감지되었습니다.");
-                Debug.Log(hited.collider.name);
-            }
-        }
+    //             Debug.Log("플레이어 뒤에 적이 감지되었습니다.");
+    //             Debug.Log(hited.collider.name);
+    //         }
+    //     }
         
-        transform.position = teleportPosition;
-        anim.SetTrigger("Atk");
-        yield return new WaitForSeconds(0.001f);
-        anim.SetBool("Sword",false);
-        anim.SetBool("isCharge",false);
-        isKeyPressed = false;
-        SwordCool = false;
-    }
+    //     transform.position = teleportPosition;
+    //     anim.SetTrigger("Atk");
+    //     yield return new WaitForSeconds(0.001f);
+    //     anim.SetBool("Sword",false);
+    //     anim.SetBool("isCharge",false);
+    //     isKeyPressed = false;
+    //     SwordCool = false;
+    // }
     
     IEnumerator MoveEnemy(Transform enemy){
         Vector3 startPos = enemy.transform.position;

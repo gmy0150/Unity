@@ -106,8 +106,7 @@ public class TPlayer : MonoBehaviour
     float timer;
     bool damaged;
     public Transform BossTransform;
-    private Vector3 targetPosition; 
-    Boss boss2;
+    Boss boss;
     private void Awake() {
         #region StateMachine
             
@@ -116,12 +115,12 @@ public class TPlayer : MonoBehaviour
         moveState = new PlayerMoveState(this, stateMachine,"Move");
         jumpState = new PlayerJumpState(this, stateMachine, "Jump");
         airState = new PlayerAirState(this, stateMachine, "Jump");
-        attackAState = new PlayerAttackA(this, stateMachine, "AttackA",0.5f,10,3,3,2);
+        attackAState = new PlayerAttackA(this, stateMachine, "AttackA",0f,10,20,6,3,2);
         attackSState = new PlayerAttackS(this, stateMachine, "AttackS");
-        attackDState = new PlayerAttackD(this, stateMachine, "AttackD",0.2f,20,3,3,3);
-        jumpAState = new PlayerJumpAState(this,stateMachine,"JumpSword",10);
-        jumpSState = new PlayerJumpSState(this,stateMachine,"JumpBow",20);
-        jumpDState = new PlayerJumpDState(this,stateMachine,"JumpHammer",10);
+        attackDState = new PlayerAttackD(this, stateMachine, "AttackD",0.1f,20,40,6,3,3);
+        jumpAState = new PlayerJumpAState(this,stateMachine,"JumpSword",0.5f,10,5);
+        jumpSState = new PlayerJumpSState(this,stateMachine,"JumpBow");
+        jumpDState = new PlayerJumpDState(this,stateMachine,"JumpHammer",0.5f,20,10);
         dashState = new PlayerDashState(this, stateMachine,"Dash");
         skillAD = new PlayerAD(this,stateMachine);
         skillAS = new PlayerAS(this,stateMachine);
@@ -134,6 +133,7 @@ public class TPlayer : MonoBehaviour
         foreach (Enemy enemy in allEnemies) {
             enemies.Add(enemy);
         }
+        boss = GameObject.FindGameObjectWithTag("Boss").GetComponent<Boss>();
     }
 
     private void Start() {
@@ -141,7 +141,6 @@ public class TPlayer : MonoBehaviour
         rigid = GetComponent<Rigidbody2D>();
         stateMachine.Initalize(idleState);
         curHP = maxHP;
-        boss2 = GameObject.FindGameObjectWithTag("Boss").GetComponent<Boss>();
     }
     private void Update() {
         if(isAlive){
@@ -172,7 +171,7 @@ public class TPlayer : MonoBehaviour
             FlipController();
         }
         if(Input.GetKeyDown(KeyCode.Z)){
-            boss2.getDamage(50);
+            boss.getDamage(50,10);
         }
         if(IsGroundDetected()){
             // notupdate = false;
@@ -251,7 +250,6 @@ public class TPlayer : MonoBehaviour
         }
         if(dashTimeLeft <= 0 || checkWallAhead()){
             if(checkWallAhead())
-                Debug.Log("벽확인");
             rigid.velocity = Vector2.zero;
             stateMachine.ChangeState(idleState);
             }
@@ -275,78 +273,12 @@ public class TPlayer : MonoBehaviour
             
         }
     }
-    IEnumerator SkillCheck(Enemy enemy){
-        while(!enemy.isEnter){
-            
-            yield return null;
+    public void BossPattern3(){
+        if(facingRight == true){
+            getDamage(20);
         }
     }
-    public void SDSkill(){
 
-        StartCoroutine(detailSD());
-    }
-    private IEnumerator detailSD(){
-        yield return new WaitForSeconds(0.1f);
-
-        SDtimer += Time.deltaTime;
-        while(!checkWallAhead()){
-            rigid.velocity = new Vector2(facingDir * -20f,rigid.velocity.y);
-            RaycastHit2D hit =Physics2D.Raycast(transform.position, 
-            transform.right, AttackRange,LayerMask.GetMask("Enemy"));
-            if(hit.collider != null){
-                Enemy hits = hit.collider.GetComponent<Enemy>();
-                if(hits!=null){
-                    hits.isEnter = true;
-                    hits.transform.position = transform.position;
-                }
-            }
-            if(skillsdTime()){
-                break;
-            }
-            foreach (Enemy enemy in enemies){
-                if (enemy != null && enemy.isEnter){
-                    Collider2D collider = enemy.GetComponent<Collider2D>();
-                    Transform enemyTransform = enemy.transform;
-                    enemyTransform.SetParent(transform);
-                    collider.isTrigger = true;
-                    enemy.rigid.isKinematic = true;
-                    if(!enemy.touchSD){
-                        enemy.TakeDamage(10);
-                        enemy.touchSD = true;
-                    }
-                }
-            }
-            yield return new WaitUntil(() => checkWallAhead()||skillsdTime());
-        }
-        yield return new WaitForSeconds(0.2f);
-        foreach (Enemy enemy in enemies){
-            if (enemy != null && enemy.isEnter){
-                Transform enemyTransform = enemy.transform;
-                Collider2D collider = enemy.GetComponent<Collider2D>();
-                enemyTransform.SetParent(null);
-                collider.isTrigger = false;
-                enemy.rigid.isKinematic = false;
-                enemy.isEnter = false;
-                if(!enemy.nottouchsd){
-                    enemy.TakeDamage(5);
-                    enemy.nottouchsd = true;
-                }
-                yield return new WaitForSeconds(0.2f);
-                enemy.offtouch();
-            }
-        }
-        rigid.velocity = Vector2.zero;
-        stateMachine.ChangeState(idleState);
-        SDtimer = 0;
-    } 
-    bool checkbossAhead() {
-        float direction = Mathf.Sign(transform.localScale.x); // 플레이어의 방향을 구함
-        Vector2 raycastStart = rigid.position + Vector2.right * 0.5f * facingDir;
-
-        RaycastHit2D rayHit = Physics2D.Raycast(raycastStart, Vector2.right * facingDir, 1, LayerMask.GetMask("Wall")|LayerMask.GetMask("Boss"));
-
-        return (rayHit.collider != null);
-    }
     public void checkDownPlatform() {
         RaycastHit2D rayHit = Physics2D.Raycast(groundCheck.position, Vector2.down * 0.5f, 1, LayerMask.GetMask("Floor"));
         Debug.DrawRay(groundCheck.position, Vector2.down * 0.5f, Color.blue);
@@ -367,13 +299,6 @@ public class TPlayer : MonoBehaviour
         }
         return false;
     }
-    bool skillsdTime() {
-        if (SDtimer >= 1.5f) { 
-            return true;
-        } else {
-            return false;
-        }
-    }    
     public bool CoolTime(string cool){
         if(cool == "SkillAD"){
             if(!SkillADUsed||Time.time >lastskillad + SkillADCool){
@@ -445,13 +370,17 @@ public class TPlayer : MonoBehaviour
 
         Vector3 rayOrigin = startPos;
 
-        RaycastHit2D hits = Physics2D.Raycast(rayOrigin, rayDirection, lineLength, LayerMask.GetMask("Enemy"));
+        RaycastHit2D hits = Physics2D.Raycast(rayOrigin, rayDirection, lineLength, LayerMask.GetMask("Enemy")|LayerMask.GetMask("Boss"));
         if(hits.collider != null){
-            Enemy hit = hits.collider.GetComponent<Enemy>();
-            if(hit != null){
-                hit.TakeDamage(15);
+            if(hits.collider.tag == "Enemy"){
+                Enemy hit = hits.collider.GetComponent<Enemy>();
+                hit.TakeDamage(15,15);
             }
         }
+            if(hits.collider.tag == "Boss"){
+               boss.getDamage(20,20);
+            }
+        
         Debug.DrawRay(rayOrigin, rayDirection * lineLength, Color.blue, 0.5f);
 
         isAS = false;
@@ -490,7 +419,7 @@ public class TPlayer : MonoBehaviour
                 gameObject.transform.position = targetPosition;
                 // GameObject playerClone = Instantiate(playerPrefab, targetPosition, Quaternion.identity);
                 // Destroy(gameObject);
-                enemy.TakeDamage(50);
+                enemy.TakeDamage(50,50);
                 enemy.isEnter = false;
             }
         }
@@ -542,26 +471,21 @@ public class TPlayer : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
 
         if(curHP > 0){
-            foreach (SpriteRenderer mesh in sprite)
-{
-    mesh.color = Color.white;
+            foreach (SpriteRenderer mesh in sprite){
+                mesh.color = Color.white;
 
-    // 튕겨나가는 방향 설정
-    float reactDirX = facingDir * 2; // 오른쪽일 때는 왼쪽으로, 왼쪽일 때는 오른쪽으로
-    float reactDirY = 1f; // 항상 위로 튕겨나가도록 설정
+                float reactDirX = facingDir * 2;
+                float reactDirY = 1f; 
 
-    // 튕겨나가는 힘 벡터 설정
-    Vector2 reactvec = new Vector2(reactDirX, reactDirY).normalized;
+                Vector2 reactvec = new Vector2(reactDirX, reactDirY).normalized;
 
-    // 튕겨나가는 힘의 크기 설정
-    float forceMagnitude = 10f; // 일정한 크기의 힘을 설정
+                float forceMagnitude = 10f;
 
-    // 일관된 튕겨나가는 힘 적용
-    rigid.velocity = reactvec * forceMagnitude;
+                rigid.velocity = reactvec * forceMagnitude;
 
-    yield return new WaitForSeconds(0.3f);
-    notupdate = false;
-}   
+                yield return new WaitForSeconds(0.3f);
+                notupdate = false;
+            }   
         }
         else{
             foreach(SpriteRenderer mesh in sprite){
@@ -577,16 +501,16 @@ public class TPlayer : MonoBehaviour
         isStun = true;
         rigid.constraints = RigidbodyConstraints2D.FreezePositionY|RigidbodyConstraints2D.FreezePositionX|RigidbodyConstraints2D.FreezeRotation;
         rigid.velocity = Vector2.zero;       
-        Boss boss = GameObject.FindGameObjectWithTag("Boss").GetComponent<Boss>();
         boss.patternoff();
         if(facingDir == 1){
             Flip();
         }
+        StartCoroutine(boss.SadPattern3());
     }
-    public void chargeS(){
-        StartCoroutine(ChargeSword());
+    public void SDSkill(){
+        StartCoroutine(DetailSD());
     }
-        IEnumerator ChargeSword(){
+    IEnumerator DetailSD(){
         yield return new WaitForSeconds(0.1f);
         
         LayerMask wallLayerMask = LayerMask.GetMask("Wall");
@@ -612,12 +536,14 @@ public class TPlayer : MonoBehaviour
             //hit.point로 ray로 벽이 있는지 확인하여 확인된 곳에 위치를 point로 저장 
             //hit.normal * 0.1f로 충돌지점에서 플레이어를 밀어냄
             }
-            else{
-                teleportPosition = hit.point + (hit.normal * 0.5f);
-            }
+            // else{
+            //     teleportPosition = hit.point + (hit.normal * 0.5f);
+            // }
             if(hit.collider.CompareTag("Boss")){
                     
-                hit.collider.GetComponent<Enemy>().TakeDamage(100);
+                boss.getDamage(50,50);
+            teleportPosition = hit.point + (hit.normal * 2f);
+
             }
         }
         // LayerMask enemyLayerMask = LayerMask.GetMask("Enemy");

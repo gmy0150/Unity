@@ -19,10 +19,7 @@ public class bullet : MonoBehaviour{
     float getx;
     Boss boss;
     bool checkdmg;
-    public void SetPlayerX(float x)
-    {
-        playerX = x;
-    }
+
 
     private void OnEnable() {
         getx = player.facingDir;
@@ -40,7 +37,7 @@ public class bullet : MonoBehaviour{
         boss = GameObject.FindWithTag("Boss").GetComponent<Boss>();
     }
     private void Update() {
-        // rigid.velocity = new Vector2(-getx * 20f,rigid.velocity.y);
+        rigid.velocity = new Vector2(-getx * 20f,rigid.velocity.y);
     }
     void OnCollisionEnter2D(Collision2D collision) {
     }
@@ -71,7 +68,8 @@ public class bullet : MonoBehaviour{
 
                     gameManager.a++;
                     if(!checkdmg){
-                        boss.getDamage(10);
+                        if(collision.tag == "Boss")
+                            boss.getDamage(10,1);
                     }
                     if (gameManager.ArrowCount() > 1)
                     {
@@ -89,7 +87,7 @@ public class bullet : MonoBehaviour{
             // Destroy(gameObject,5f);
             }
         }else if(collision.CompareTag("BossHeat")){
-            boss.getDamage(20);
+            boss.getDamage(20,1);
             checkdmg = true;
         }
         if(collision == null){

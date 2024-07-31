@@ -8,12 +8,13 @@ public class PlayerArrowPool : MonoBehaviour
     public static PlayerArrowPool Instance { get; private set; }
     public GameObject ArrowPrefeb;
     private Queue<GameObject> ArrowPool = new Queue<GameObject>();
-    bullet bullets;
     public int poolSize = 20;
     float timer;
+    TPlayer player;
     private void Awake() {
         Instance = this;
         InitializePool();
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<TPlayer>();
     }
 
     private void InitializePool() {
@@ -26,12 +27,16 @@ public class PlayerArrowPool : MonoBehaviour
         }
     }
     public GameObject GetArrow() {
-        Debug.Log("왜 작동");
         if (ArrowPool.Count == 0) {
-            Debug.Log("왜 안생겨");
             InitializePool();
         }
         GameObject Arrow = ArrowPool.Dequeue();
+        if(player.facingRight){
+            Arrow.transform.rotation = Quaternion.Euler(0,0,0);
+            Debug.Log("확인");
+        }else{
+            Arrow.transform.rotation = Quaternion.Euler(0,180,0);
+        }
         Arrow.SetActive(true);
         Arrow.transform.SetParent(null);
 
@@ -40,13 +45,14 @@ public class PlayerArrowPool : MonoBehaviour
     private void Update() {
         timer += Time.deltaTime;
     }
-    public void ReturnArrow(GameObject Arrow,float seconds = 0) {
-        if(seconds < timer){
-            Arrow.SetActive(false);
-            Arrow.transform.SetParent(transform);
-            Arrow.transform.localPosition = new Vector3(0,0,0);
-            Arrow.transform.rotation = Quaternion.identity;
-            ArrowPool.Enqueue(Arrow);
+    public void ReturnArrow(GameObject Arrow, float seconds = 0) {
+    if (seconds < timer) {
+        Arrow.SetActive(false);
+        Arrow.transform.SetParent(transform);
+        Arrow.transform.localPosition = new Vector3(0, 0, 0);
+        ArrowPool.Enqueue(Arrow);
         }
     }
+
+
 }

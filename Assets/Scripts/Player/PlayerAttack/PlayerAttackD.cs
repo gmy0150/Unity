@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerAttackD : PlayerAttackState
 {
-    public PlayerAttackD(TPlayer _player, PlayerStateMachine _stateMachine, string _animBoolName, float _attackSpeed, int _damage,float _attackRange, float _deleteCombo,int _comboCount) : base(_player, _stateMachine, _animBoolName, _attackSpeed, _damage,_attackRange,_deleteCombo,_comboCount)
+    public PlayerAttackD(TPlayer _player, PlayerStateMachine _stateMachine, string _animBoolName, float _attackSpeed, int _damage, int _shiledDMG, float _attackRange, float _deleteCombo, int _comboCount) : base(_player, _stateMachine, _animBoolName, _attackSpeed, _damage, _shiledDMG, _attackRange, _deleteCombo, _comboCount)
     {
     }
 

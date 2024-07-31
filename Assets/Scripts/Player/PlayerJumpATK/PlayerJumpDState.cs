@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerJumpDState : PlayerJumpATKState
 {
-    public PlayerJumpDState(TPlayer _player, PlayerStateMachine _stateMachine, string _animBoolName, int _damage) : base(_player, _stateMachine, _animBoolName, _damage)
+    public PlayerJumpDState(TPlayer _player, PlayerStateMachine _stateMachine, string _animBoolName, float _attackRange, int _damage, int _shiledDMG) : base(_player, _stateMachine, _animBoolName, _attackRange, _damage, _shiledDMG)
     {
     }
 

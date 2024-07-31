@@ -325,10 +325,10 @@ public class Enemy : EnemyHP
         }
     }
     
-    public void TakeDamage(int damageAmount)
+    public void TakeDamage(int damageAmount,int shieldDMG)
     {
         if(curShiled > 0){
-            curShiled -= damageAmount;
+            curShiled -= shieldDMG;
         }else{
             curHealth -= damageAmount;
             
@@ -378,12 +378,12 @@ public class Enemy : EnemyHP
     public int getHP(){
         return curHealth;
     }
-    public IEnumerator skillDmg()
-    {
-        yield return new WaitForSeconds(0.1f);
+    // public IEnumerator skillDmg()
+    // {
+    //     yield return new WaitForSeconds(0.1f);
 
-        TakeDamage(10);
-    }
+    //     TakeDamage(10);
+    // }
     void Die()
     {
         Destroy(gameObject);
