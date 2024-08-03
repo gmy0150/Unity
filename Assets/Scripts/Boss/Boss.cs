@@ -150,8 +150,8 @@ public class Boss : EnemyHP
                 Debug.Log("슬픔");
             }
             if(range == 1){
-                setDoor(angry);
-                Debug.Log("화");
+                setDoor(happy);
+                Debug.Log("기쁨");
             }
             transtimer = 0;
         }
@@ -210,6 +210,7 @@ public class Boss : EnemyHP
                 bossGroggy = false;
                 isFloor = false;
                 TransPattern = false;
+
             }
         }
     }
@@ -218,8 +219,7 @@ public class Boss : EnemyHP
             init = true;
             savehp = curHealth;
             weakness.SetActive(true);      
-            animator.SetBool("Stun",true);
-
+            animator.SetBool("Stun",true);  
         }
         if(!TransPattern){
             if(timer > 3f){

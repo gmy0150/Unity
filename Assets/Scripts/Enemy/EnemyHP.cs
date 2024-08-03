@@ -18,7 +18,6 @@ public class EnemyHP : MonoBehaviour
 
     public virtual void Start()
     {
-        
         healthbar.UpdateHealthBar(curHealth,maxHealth);
         if(enemyType == Type.elite)
             healthbar.UpdateShieldBar(curShiled,maxShiled);
@@ -28,7 +27,7 @@ public class EnemyHP : MonoBehaviour
         boss = GameObject.FindGameObjectWithTag("Boss").GetComponent<Boss>();
     }
     public virtual void getDamage(int hp,int shiledhp){
-        if(curShiled > 0){
+        if(curShiled >= 0){
             curShiled -= shiledhp;
             healthbar.UpdateShieldBar(curShiled,maxShiled);
         }
