@@ -11,10 +11,12 @@ public class PlayerArrowPool : MonoBehaviour
     public int poolSize = 20;
     float timer;
     TPlayer player;
+    bullet bullet;
     private void Awake() {
         Instance = this;
         InitializePool();
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<TPlayer>();
+        bullet = ArrowPrefeb.GetComponent<bullet>();
     }
 
     private void InitializePool() {
@@ -33,7 +35,6 @@ public class PlayerArrowPool : MonoBehaviour
         GameObject Arrow = ArrowPool.Dequeue();
         if(player.facingRight){
             Arrow.transform.rotation = Quaternion.Euler(0,0,0);
-            Debug.Log("확인");
         }else{
             Arrow.transform.rotation = Quaternion.Euler(0,180,0);
         }
@@ -43,15 +44,14 @@ public class PlayerArrowPool : MonoBehaviour
         return Arrow;
     }
     private void Update() {
-        timer += Time.deltaTime;
     }
-    public void ReturnArrow(GameObject Arrow, float seconds = 0) {
-    if (seconds < timer) {
-        Arrow.SetActive(false);
-        Arrow.transform.SetParent(transform);
-        Arrow.transform.localPosition = new Vector3(0, 0, 0);
-        ArrowPool.Enqueue(Arrow);
-        }
+    public void ReturnArrow(GameObject Arrow) {
+            Debug.Log(00);
+            Arrow.SetActive(false);
+            Arrow.transform.SetParent(transform);
+            Arrow.transform.localPosition = new Vector3(0, 0, 0);
+            ArrowPool.Enqueue(Arrow);
+        
     }
 
 

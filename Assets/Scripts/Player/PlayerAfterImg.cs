@@ -12,6 +12,7 @@ public class PlayerAfterImg : MonoBehaviour
     [SerializeField]
     private float alphaSet = 0.8f;
     private float alphaMultiplier = 0.98f; // 스프라이트 페이드 되는 속도 작을수록 빠름
+    
     private Transform player;
     private SpriteRenderer SR;
     private SpriteRenderer playerSR;

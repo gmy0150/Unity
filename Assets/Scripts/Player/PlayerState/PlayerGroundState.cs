@@ -4,16 +4,16 @@ using UnityEngine;
 
 public class PlayerGroundState : PlayerState
 {
-    private float keyDelay = 0.03f;
+    private float keyDelay = 0.04f;
     private float APressTime = -1f;
     private float SPressTime = -1f;
     private float DPressTime = -1f;
     private bool isAPressed = false;
     private bool isSPressed = false;
     private bool isDPressed = false;
-    private float delayA = 0.04f;
-    private float delayS = 0.04f;
-    private float delayD = 0.04f;
+    private float delayA = 0.06f;
+    private float delayS = 0.06f;
+    private float delayD = 0.06f;
     bool skillAD;
     bool skillAS;
     bool skillSD;

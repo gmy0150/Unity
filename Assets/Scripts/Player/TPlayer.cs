@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class TPlayer : MonoBehaviour
 {
@@ -11,10 +12,10 @@ public class TPlayer : MonoBehaviour
     public float jumpforce;
     #region skill
         
-    static bool SkillADUsed;
-    static bool SkillASDUsed;
-    static bool SkillSDUsed;
-    static bool SkillASUsed;
+    public static bool SkillADUsed{get; private set;}
+    public static bool SkillASDUsed{get; private set;}
+    public static bool SkillSDUsed{get; private set;}
+    public static bool SkillASUsed{get; private set;}
     static bool DashUsed;
     #endregion
 
@@ -47,6 +48,7 @@ public class TPlayer : MonoBehaviour
     public float dashSpeed;
     public float distanceBetweenImages;
     public List<Enemy> enemies = new List<Enemy>();
+    
     #region Collision
     [Header("Collision info")]
     [SerializeField]private Transform groundCheck;
@@ -107,6 +109,11 @@ public class TPlayer : MonoBehaviour
     bool damaged;
     public Transform BossTransform;
     Boss boss;
+    Enemy enemy1;
+    public Image SkillADImage;
+    public Image SkillSDImage;
+    public Image SkillASImage;
+    public Image SkillASDImage;
     private void Awake() {
         #region StateMachine
             
@@ -129,6 +136,7 @@ public class TPlayer : MonoBehaviour
         #endregion
         sprite = GetComponentsInChildren<SpriteRenderer>();
         lineRenderer = GetComponentInChildren<LineRenderer>();
+        enemy1 = GameObject.FindGameObjectWithTag("Enemy").GetComponent<Enemy>();
         Enemy[] allEnemies = FindObjectsOfType<Enemy>();
         foreach (Enemy enemy in allEnemies) {
             enemies.Add(enemy);
@@ -141,6 +149,7 @@ public class TPlayer : MonoBehaviour
         rigid = GetComponent<Rigidbody2D>();
         stateMachine.Initalize(idleState);
         curHP = maxHP;
+        
     }
     private void Update() {
         if(isAlive){
@@ -176,6 +185,7 @@ public class TPlayer : MonoBehaviour
         if(IsGroundDetected()){
             // notupdate = false;
         }
+        UpdateCooldownUI();
 
     }
     bool CheckStun(){
@@ -229,6 +239,45 @@ public class TPlayer : MonoBehaviour
             }
         }
     }
+
+    private void UpdateCooldownUI()
+    {
+        if (SkillADUsed)
+        {
+            SkillADImage.fillAmount -= Time.deltaTime / SkillADCool;
+            if (SkillADImage.fillAmount <= 0)
+            {
+                SkillADUsed = false;
+            }
+        }
+
+        if (SkillSDUsed)
+        {
+            SkillSDImage.fillAmount -= Time.deltaTime / SkillSDCool;
+            if (SkillSDImage.fillAmount <= 0)
+            {
+                SkillSDUsed = false;
+            }
+        }
+
+        if (SkillASUsed)
+        {
+            SkillASImage.fillAmount -= Time.deltaTime / SkillASCool;
+            if (SkillASImage.fillAmount <= 0)
+            {
+                SkillASUsed = false;
+            }
+        }
+
+        if (SkillASDUsed)
+        {
+            SkillASDImage.fillAmount -= Time.deltaTime / SkillASDCool;
+            if (SkillASDImage.fillAmount <= 0)
+            {
+                SkillASDUsed = false;
+            }
+        }
+    }
     public void AttemptToDash(){
         dashTimeLeft = dashTime;
         lastDash = Time.time;
@@ -241,7 +290,7 @@ public class TPlayer : MonoBehaviour
                  
             rigid.velocity = new Vector2(-dashSpeed * facingDir ,0f);
             dashTimeLeft -= Time.deltaTime;
-
+            gameObject.layer = 16;
             if(Mathf.Abs(transform.position.x - lastImageXpos) > distanceBetweenImages){
                 PlayerAfterImgPool.Instance.GetFromPool();
                 
@@ -249,15 +298,17 @@ public class TPlayer : MonoBehaviour
             }
         }
         if(dashTimeLeft <= 0 || checkWallAhead()){
-            if(checkWallAhead())
             rigid.velocity = Vector2.zero;
             stateMachine.ChangeState(idleState);
+            gameObject.layer = 7;
             }
         }
     public void Holding(){
-        float distanceX = BossTransform.position.x - transform.position.x;
-        Vector2 direction = new Vector2(distanceX, 0f).normalized;
-        SetVelocity(direction.x * 5f ,rigid.velocity.y);
+        if(boss.happydoor&&!boss.TransPattern){
+            float distanceX = BossTransform.position.x - transform.position.x;
+            Vector2 direction = new Vector2(distanceX, 0f).normalized;
+            SetVelocity(direction.x * 5f ,rigid.velocity.y);
+        }
     }
     public void detailAD(){
         for(int i = 0; i< 8;i++){
@@ -265,6 +316,9 @@ public class TPlayer : MonoBehaviour
             GameObject bullet = Instantiate(ArrowObj,bulletPosition,Quaternion.identity);
             Rigidbody2D bulletRigidbody = bullet.GetComponent<Rigidbody2D>();
             float randomAngle = Random.Range(-45f,10f);
+            if(facingRight){
+                randomAngle = Random.Range(-10f,45f);
+            }
             Quaternion randomRotation = Quaternion.Euler(0f,0f,randomAngle);
             bullet.transform.rotation = randomRotation;
             Vector2 forceDirection = randomRotation * transform.right;
@@ -304,6 +358,7 @@ public class TPlayer : MonoBehaviour
             if(!SkillADUsed||Time.time >lastskillad + SkillADCool){
                 SkillADUsed = true;
                 lastskillad = Time.time;
+                SkillADImage.fillAmount = 1;
                 Debug.Log("확인");
                 return true;
             }else{
@@ -313,6 +368,7 @@ public class TPlayer : MonoBehaviour
             if(!SkillSDUsed||Time.time >lastskillsd + SkillSDCool){
                 SkillSDUsed = true;
                 lastskillsd = Time.time;
+                SkillSDImage.fillAmount = 1;
                 return true;
             }else{
                 return false;
@@ -321,7 +377,7 @@ public class TPlayer : MonoBehaviour
             if(!SkillASUsed||Time.time >lastskillas + SkillADCool){
                 SkillASUsed = true;
                 lastskillas = Time.time;
-
+                SkillASImage.fillAmount = 1;
                 return true;
             }else{
                 return false;
@@ -330,6 +386,7 @@ public class TPlayer : MonoBehaviour
             if(!SkillASDUsed||Time.time >lastskillasd + SkillASDCool){
                 SkillASDUsed = true;
                 lastskillasd = Time.time;
+                SkillASDImage.fillAmount = 1;
                 return true;
             }else{
                 return false;
@@ -374,12 +431,12 @@ public class TPlayer : MonoBehaviour
         if(hits.collider != null){
             if(hits.collider.tag == "Enemy"){
                 Enemy hit = hits.collider.GetComponent<Enemy>();
-                hit.TakeDamage(15,15);
+                hit.getDamage(15,15);
             }
-        }
             if(hits.collider.tag == "Boss"){
                boss.getDamage(20,20);
             }
+        }
         
         Debug.DrawRay(rayOrigin, rayDirection * lineLength, Color.blue, 0.5f);
 
@@ -390,15 +447,15 @@ public class TPlayer : MonoBehaviour
         Vector3 bulletPosition = transform.position + transform.up * 0.5f;
         float direction = facingDir;
 
-        Quaternion rotation = Quaternion.Euler(0, 0, direction*90f);
+        Quaternion rotation = Quaternion.Euler(0, 0, direction * 90f);
         if(SkillObj != null){
             GameObject bullet = Instantiate(SkillObj, bulletPosition, rotation);
             Rigidbody2D bulletRigidbody = bullet.GetComponent<Rigidbody2D>();
             if(bulletRigidbody != null){
-                bulletRigidbody.AddForce(transform.right * (facingDir * 50), ForceMode2D.Impulse);
+                bulletRigidbody.AddForce(transform.right * (-facingDir * 50), ForceMode2D.Impulse);
             }
             bullet.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
-            StartCoroutine(detailASD());
+            // StartCoroutine(detailASD());
 
         }else{
             Debug.Log("skillobj가 없음");
@@ -417,16 +474,21 @@ public class TPlayer : MonoBehaviour
                 Transform enemyTransform = enemy.transform;
                 Vector3 targetPosition = enemyTransform.position - enemyTransform.forward * 2; // 적의 위치에서 앞으로 2만큼 떨어진 곳으로 설정
                 gameObject.transform.position = targetPosition;
-                // GameObject playerClone = Instantiate(playerPrefab, targetPosition, Quaternion.identity);
-                // Destroy(gameObject);
-                enemy.TakeDamage(50,50);
+                enemy.getDamage(50,50);
                 enemy.isEnter = false;
             }
         }
         if(!hasTime)
             yield break;
         }
-    
+    public void PlayerMove(Transform transEnemy, Vector3 bulletDirection){
+        Transform enemyTransform = transEnemy.transform;
+        Vector3 targetPosition = enemyTransform.position - bulletDirection.normalized * 2; // 적의 위치에서 앞으로 2만큼 떨어진 곳으로 설정
+        gameObject.transform.position = targetPosition;
+        
+        enemy1.getDamage(50,50);
+        boss.getDamage(50,50);
+    }
     bool skilalsdTime() {
         if (Time.time - targetTime >= 2f) { 
             return true;
@@ -451,7 +513,18 @@ public class TPlayer : MonoBehaviour
             atkdmg = true;
             StartCoroutine(OnDamage());
         notupdate = true;
-
+        FollowCamera.Instance.ShakeCamera();
+        }
+        if(curHP <= 0){
+            isAlive = false;
+        }
+    }
+    public void takeDamage(int hp){
+        if(!atkdmg){
+            curHP -= hp;
+            atkdmg = true;
+        FollowCamera.Instance.ShakeCamera();
+        
         }
         if(curHP <= 0){
             isAlive = false;

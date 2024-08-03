@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1874633534744709329}
   - component: {fileID: 5126571790485544212}
   - component: {fileID: 5530684488135936204}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: SadFlooring 1
   m_TagString: BossDMG
   m_Icon: {fileID: 0}

@@ -20,7 +20,7 @@ public class PlayerFlyState : PlayerState
     public override void Update()
     {
         base.Update();
-        if(boss.happydoor){
+        if(boss.happydoor&&!boss.TransPattern){
             player.Holding();
             if(!player.facingRight&&xInput != 0){
                 player.SetVelocity(xInput * (player.moveSpeed - 4),rb.velocity.y);

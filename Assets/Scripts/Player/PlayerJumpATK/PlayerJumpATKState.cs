@@ -38,7 +38,7 @@ public class PlayerJumpATKState : PlayerState
     }
     public override void Update(){
         base.Update();
-        if(boss.happydoor){
+        if(boss.happydoor&&!boss.TransPattern){
             player.Holding();
         }
         if(player.IsGroundDetected()&&triggerCalled){
@@ -58,7 +58,7 @@ public class PlayerJumpATKState : PlayerState
         if(hit.collider != null){
             Enemy enemy = hit.transform.GetComponent<Enemy>();
             if(enemy != null){
-                enemy.TakeDamage(damage,ShiledDamage);
+                enemy.getDamage(damage,ShiledDamage);
             }
             if(hit.collider.tag == "Boss"){
                 boss.getDamage(damage,ShiledDamage);

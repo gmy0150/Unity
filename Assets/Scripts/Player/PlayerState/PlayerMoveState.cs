@@ -20,7 +20,7 @@ public class PlayerMoveState : PlayerGroundState
     public override void Update()
     {
         base.Update();
-        if(boss.happydoor&&!player.isBrick){
+        if(boss.happydoor&&!player.isBrick&&!boss.TransPattern){
             if(!player.facingRight){
                 player.SetVelocity(xInput * (player.moveSpeed - 4),rb.velocity.y);
             }else{

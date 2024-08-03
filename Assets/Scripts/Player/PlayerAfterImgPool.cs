@@ -18,7 +18,7 @@ public class PlayerAfterImgPool : MonoBehaviour
     private void Awake() {
         Instance = this;
         GrowPool();
-        player = GameObject.FindGameObjectWithTag("Player").GetComponent<TPlayer>();
+        // player = GameObject.FindGameObjectWithTag("Player").GetComponent<TPlayer>();
     }
 
     public void GrowPool(){//최초로 플레이어 이미지를 이 스크립트가 있는 오브젝트에 저장하는 부분

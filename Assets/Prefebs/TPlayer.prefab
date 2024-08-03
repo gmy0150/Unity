@@ -256,12 +256,12 @@ MonoBehaviour:
   whatIsWall:
     serializedVersion: 2
     m_Bits: 1024
-  ArrowObj: {fileID: 7737148279669808546, guid: d58c4395c1fe1c84cb4e8746e1eba539, type: 3}
+  ArrowObj: {fileID: 7737148279669808546, guid: 4f64fe134694828478a68501e7acd8a5, type: 3}
   AttackRange: 2
   facingRight: 1
   isBusy: 0
-  curHP: 1000
-  maxHP: 1000
+  curHP: 2147483647
+  maxHP: 2147483647
   SkillObj: {fileID: 721889802133068220, guid: 2914c6703eb23d44ab41eb0c3bbceff3, type: 3}
   notupdate: 0
   playerPrefab: {fileID: 3986789596680364909}

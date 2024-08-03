@@ -24,7 +24,7 @@ public class Boss : EnemyHP
     string angry = "angry";
     string sad = "sad";
     string happy = "happy";
-    string die = "die";
+    public string die = "die";
     public LayerMask layerMask;
     bool isFloor;
     GameObject sadflooreffect;
@@ -48,7 +48,7 @@ public class Boss : EnemyHP
     bool bossdie;
     bool bossGroggy;
     int savehp;
-
+    public bool TransPattern{get;private set;}
     Animator animator;
     bool init;
     private void Awake() {
@@ -57,7 +57,7 @@ public class Boss : EnemyHP
         rigid = GetComponent<Rigidbody2D>();
         base.Awake();
     }
-    void setDoor(string Pdoor){
+    public void setDoor(string Pdoor){
     angerdoor = false;
     saddoor = false;
     happydoor = false;
@@ -129,20 +129,30 @@ public class Boss : EnemyHP
     }
     void Angrydoor(){
         transtimer += Time.deltaTime;
-        if(!islaser){
-            pattern1timer += Time.deltaTime;
+        if(!TransPattern){
+            if(!islaser){
+                pattern1timer += Time.deltaTime;
+                }
+            if(pattern1timer >= laserinterval){
+                StartCoroutine("Laser");
+                pattern1timer = 0;
             }
-        if(pattern1timer >= laserinterval){
-            StartCoroutine("Laser");
-            pattern1timer = 0;
-        }
-        if(timer >= dropInterval){
-            Vector3 dropPosition = GetRandomPointInBox(rockStart);
-            StartCoroutine(DropWithEffect(dropPosition));
-            timer = 0;
+            if(timer >= dropInterval){
+                Vector3 dropPosition = GetRandomPointInBox(rockStart);
+                StartCoroutine(DropWithEffect(dropPosition));
+                timer = 0;
+            }
         }
         if(transtimer > 10){
-            setDoor(sad);
+            int range = Random.Range(0,2);
+            if(range == 0){
+                setDoor(sad);
+                Debug.Log("슬픔");
+            }
+            if(range == 1){
+                setDoor(angry);
+                Debug.Log("화");
+            }
             transtimer = 0;
         }
     }
@@ -154,33 +164,36 @@ public class Boss : EnemyHP
             shiledimage.SetActive(true);
             healthbar.UpdateShieldBar(curShiled,maxShiled);
             init = true;
+            TransPattern = false;
         }
-        pattern2timer += Time.deltaTime;
-        if(pattern2timer >= 5f){
-            float randomvalue = Random.Range(0f,1f);
-            Debug.Log(randomvalue);
-            if(randomvalue< 0.1f){
-                StartCoroutine(SadPattern3());
+        if(!TransPattern){
+            pattern2timer += Time.deltaTime;
+            if(pattern2timer >= 5f){
+                float randomvalue = Random.Range(0f,1f);
+                if(randomvalue< 0.1f){
+                    StartCoroutine(SadPattern3());
+                }
+                pattern2timer = 0;
             }
-            pattern2timer = 0;
-        }
-        if(timer > 5f){
-            if(!isFloor){
-                sadfloor();
+            if(timer > 5f){
+                if(!isFloor){
+                    sadfloor();
+                }
             }
-        }
-        if(!player.isStun&&!bossGroggy){
-            pattern1timer += Time.deltaTime;
-            if(pattern1timer >= 2f){
-                Vector3 dropPosition = GetRandomPointInBox(rockStart);
-                StartCoroutine(DropStun(dropPosition));
-                pattern1timer = 0;
+            if(!player.isStun&&!bossGroggy){
+                pattern1timer += Time.deltaTime;
+                if(pattern1timer >= 2f){
+                    Vector3 dropPosition = GetRandomPointInBox(rockStart);
+                    StartCoroutine(DropStun(dropPosition));
+                    pattern1timer = 0;
+                }
             }
         }
         if(curShiled <= 0){
             transtimer += Time.deltaTime;
             isFloor = true;
             bossGroggy = true;
+            TransPattern = true;
             BossEffectPool.Instance.ReturnEffectall();
             pattern1timer = 0;
             player.getStunoff();
@@ -196,6 +209,7 @@ public class Boss : EnemyHP
                 init = false;
                 bossGroggy = false;
                 isFloor = false;
+                TransPattern = false;
             }
         }
     }
@@ -207,15 +221,19 @@ public class Boss : EnemyHP
             animator.SetBool("Stun",true);
 
         }
-        if(timer > 3f){
-            for(int i = 1; i<= 3; i++){
-                Vector3 brick = GetRandomPointInBox(brickstart);
-                Vector3 rock = GetRandomPointInBox(rockStart);
-                StartBrick(brick, rock);
+        if(!TransPattern){
+            if(timer > 3f){
+                for(int i = 1; i<= 3; i++){
+                    Vector3 brick = GetRandomPointInBox(brickstart);
+                    Vector3 rock = GetRandomPointInBox(rockStart);
+                    StartBrick(brick, rock);
+                }
+            timer = 0;
             }
-        timer = 0;
         }
         if(savehp - curHealth >= 100){
+            TransPattern = true;
+            weakness.SetActive(false);
             transtimer += Time.deltaTime;
             if(transtimer >= 7f){
                 int range = Random.Range(0,2);
@@ -229,25 +247,19 @@ public class Boss : EnemyHP
                 }
                 transtimer = 0;
                 init = false;
-                weakness.SetActive(false);
+                TransPattern = false;
             }
         }
         
     }
     public void getDamage(int hp,int shiledhp){
-        if(curShiled > 0){
-            curShiled -= shiledhp;
-            healthbar.UpdateShieldBar(curShiled,maxShiled);
-        }
-        else if(curHealth >= 0){
-            curHealth -= hp;
-            healthbar.UpdateHealthBar(curHealth,maxHealth);
-        }
+        base.getDamage(hp,shiledhp);
         if(curHealth <= 0){
-            Debug.Log("죽음");
             setDoor(die);
+            Debug.Log("죽음");
+            
         }
-
+    
     }
     public void patternoff(){
         pattern1timer = 0;
@@ -295,10 +307,8 @@ public class Boss : EnemyHP
             );
             if (rayed.collider != null)
             {
-                if (rayed.collider.CompareTag("Player"))
-                {
+                
                     player.getDamage(laserDmg);
-                }
             }
             elapsedTime += Time.deltaTime;
             yield return null;

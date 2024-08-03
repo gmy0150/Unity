@@ -8,7 +8,7 @@ public class bullet : MonoBehaviour{
     public float arrowOffset = 1f;
     public int bulletdamgae;
     public Type type;
-    public enum Type{Arrow,Skill}
+    public enum Type{Arrow,Skill,None}
     public bool isPenetrate;
     public List<GameObject> instatarrow = new List<GameObject>();   
     TPlayer player;
@@ -19,10 +19,14 @@ public class bullet : MonoBehaviour{
     float getx;
     Boss boss;
     bool checkdmg;
-
-
+    float timer;
     private void OnEnable() {
         getx = player.facingDir;
+        timer += Time.deltaTime;
+    }
+    private void OnDisable() {
+        timer = 0;
+        checkdmg = false;
     }
     private void Awake() {
         
@@ -38,18 +42,26 @@ public class bullet : MonoBehaviour{
     }
     private void Update() {
         rigid.velocity = new Vector2(-getx * 20f,rigid.velocity.y);
+        if(timer >= 3f){
+            PlayerArrowPool.Instance.ReturnArrow(gameObject);
+        }
     }
     void OnCollisionEnter2D(Collision2D collision) {
     }
 
     void OnTriggerEnter2D(Collider2D collision) {
+        Debug.Log(1);
         if(collision.gameObject.tag == "Wall"){
+            if(type == Type.Arrow)
             PlayerArrowPool.Instance.ReturnArrow(gameObject);
-            // Destroy(gameObject);
+            else
+            Destroy(gameObject);
         }
         if(collision.gameObject.tag == "Floor"){
-            // Destroy(gameObject);
+            if(type == Type.Arrow)
             PlayerArrowPool.Instance.ReturnArrow(gameObject);
+            else
+            Destroy(gameObject);
         }
         if(collision.CompareTag("Enemy")||collision.CompareTag("Boss")){
             if(type == Type.Arrow){
@@ -70,6 +82,10 @@ public class bullet : MonoBehaviour{
                     if(!checkdmg){
                         if(collision.tag == "Boss")
                             boss.getDamage(10,1);
+                            Debug.Log("데미지?");
+                        if(collision.tag == "Enemy"){
+                            enemy.getDamage(10,1);
+                        }
                     }
                     if (gameManager.ArrowCount() > 1)
                     {
@@ -77,23 +93,28 @@ public class bullet : MonoBehaviour{
                         gameManager.RemoveArrow(oldestArrow);
                         Destroy(oldestArrow);
                     }
-                PlayerArrowPool.Instance.ReturnArrow(gameObject);
                 }
-                
-
+                PlayerArrowPool.Instance.ReturnArrow(gameObject);
             }
             else if(type == Type.Skill){
-                enemy.isEnter = true;
-            // Destroy(gameObject,5f);
+                Vector3 bulletDir = rigid.velocity;
+                player.PlayerMove(collision.transform,bulletDir);
+                if(collision.tag == "Boss")
+                    boss.getDamage(20,20);
+                if(collision.tag == "Enemy")
+                    enemy.getDamage(20,20);
+                Destroy(gameObject);
+            }else{
+                Destroy(gameObject);
             }
         }else if(collision.CompareTag("BossHeat")){
-            boss.getDamage(20,1);
-            checkdmg = true;
+            if(type != Type.None){
+                boss.getDamage(20,1);
+                checkdmg = true;
+            }
+            
         }
-        if(collision == null){
-            PlayerArrowPool.Instance.ReturnArrow(gameObject,5f);
-
-        }
+        
     }
 }
    

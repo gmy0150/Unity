@@ -18,7 +18,7 @@ public class BossBrick : MonoBehaviour
 
         }
         if(other.tag == "Player"){
-            player.getDamage(10);
+            // player.takeDamage(10);
             player.React();
             BossRockPool.Instance.AddBrickToPool(gameObject);
         }

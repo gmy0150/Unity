@@ -14,6 +14,8 @@ public class EnemyHP : MonoBehaviour
     [SerializeField]protected int curShiled;
     [SerializeField]protected HealthBarUI healthbar;
     // [SerializeField]protected GameObject particle;
+    Boss boss;
+
     public virtual void Start()
     {
         
@@ -23,6 +25,22 @@ public class EnemyHP : MonoBehaviour
     }
     public virtual void Awake() {
         healthbar = GetComponentInChildren<HealthBarUI>();
+        boss = GameObject.FindGameObjectWithTag("Boss").GetComponent<Boss>();
+    }
+    public virtual void getDamage(int hp,int shiledhp){
+        if(curShiled > 0){
+            curShiled -= shiledhp;
+            healthbar.UpdateShieldBar(curShiled,maxShiled);
+        }
+        else if(curHealth >= 0){
+            curHealth -= hp;
+            healthbar.UpdateHealthBar(curHealth,maxHealth);
+        }
+        // if(curHealth <= 0){
+        //     setDoor(die);
+        //     Debug.Log("죽음");
+        // }
+    
     }
     void Update()
     {

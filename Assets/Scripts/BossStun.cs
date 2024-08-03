@@ -47,14 +47,10 @@ public class BossStun : MonoBehaviour
         target.localScale = finalScale;
     }
 
-    // private void OnCollisionEnter2D(Collider2D other) {
-    //     if(other.tag == "Player"){
-    //         player.getStun();
-    //     }
-    // }
-    private void OnCollisionEnter2D(Collision2D other) {
-        if(other.transform.tag == "Player"){
-            player.getStun();
+
+    private void OnCollisionEnter2D(Collision2D other) {    
+        if(other.gameObject.layer == 7){
+            player.getStun(); 
             player.getDamage(10);
         }
     }

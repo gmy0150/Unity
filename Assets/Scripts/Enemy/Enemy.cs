@@ -82,9 +82,9 @@ public class Enemy : EnemyHP
     }
     void EnemyAI(){
         if(nextMove > 0){
-            transform.localScale = new Vector3(0.7f,0.7f,0.7f);
+            transform.localScale = new Vector3(1f,1f,1f);
         }else if(nextMove < 0){
-            transform.localScale = new Vector3(-0.7f,0.7f,0.7f);
+            transform.localScale = new Vector3(-1f,1f,1f);
         }
         else{
         }
@@ -286,7 +286,7 @@ public class Enemy : EnemyHP
     }
 
     void MoveCharacter(Vector2 direction){
-        float newY = transform.position.y;
+        float newY = rigid.velocity.y;
         float newX = transform.position.x + direction.x *speed * Time.deltaTime;
         Vector2 newPos = new Vector2(newX,newY);
         rigid.MovePosition(newPos);
@@ -325,14 +325,15 @@ public class Enemy : EnemyHP
         }
     }
     
-    public void TakeDamage(int damageAmount,int shieldDMG)
+    public override void getDamage(int hp,int shiledhp)
     {
-        if(curShiled > 0){
-            curShiled -= shieldDMG;
-        }else{
-            curHealth -= damageAmount;
+        base.getDamage(hp,shiledhp);
+        // if(curShiled > 0){
+        //     curShiled -= shieldDMG;
+        // }else{
+        //     curHealth -= damageAmount;
             
-        }
+        // }
         
         StartCoroutine(OnDamage(Vector3.zero)); // OnDamage 함수로 데미지 입은 모습을 표현 함
     }

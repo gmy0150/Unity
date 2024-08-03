@@ -350,7 +350,7 @@ RectTransform:
   m_Father: {fileID: 1318477968799998251}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -625,7 +625,7 @@ RectTransform:
   m_Father: {fileID: 3853388861444518075}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -685,7 +685,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2193962775498041774
 Transform:
   m_ObjectHideFlags: 0
@@ -694,7 +694,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7004641566438425231}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -13.422246, y: -0.41, z: 1.0018663}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -720,14 +720,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyType: 1
   maxHealth: 500
+  curHealth: 0
+  maxShiled: 100
+  curShiled: 100
+  healthbar: {fileID: 5672706882710226478}
   ArrowObj: {fileID: 7737148279669808546, guid: 9284566cb5774cc4a98539192201bb13, type: 3}
   ArrowDMG: 0
   touchSD: 0
   nottouchsd: 0
-  curHelath: 500
-  maxShiled: 100
-  curShiled: 100
-  healthbar: {fileID: 5672706882710226478}
   sprite: []
   speed: 1
   isDead: 0
@@ -735,7 +735,6 @@ MonoBehaviour:
   rigid: {fileID: 4868423459929292718}
   particle: {fileID: 7932810315348491932}
   nextMove: 0
-  attackpoint: {fileID: 5438538000152622091}
   fireRate: 2
 --- !u!212 &7915169155784777893
 SpriteRenderer:
@@ -5824,7 +5823,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Healthslider: {fileID: 7820725197992050444}
+  backgroundSlider: {fileID: 0}
   Shiledslider: {fileID: 8984060194317862327}
+  Shiled: {fileID: 0}
+  lerpSpeed: 1
 --- !u!1 &8502550286222497831
 GameObject:
   m_ObjectHideFlags: 0

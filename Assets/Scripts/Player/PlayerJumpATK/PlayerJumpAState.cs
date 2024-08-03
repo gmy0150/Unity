@@ -18,5 +18,8 @@ public class PlayerJumpAState : PlayerJumpATKState
     }
     public override void Update(){
         base.Update();
+        if(triggerCalled){
+            stateMachine.ChangeState(player.idleState);
+        }
     }
 }

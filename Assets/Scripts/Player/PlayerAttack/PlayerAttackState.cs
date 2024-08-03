@@ -52,9 +52,8 @@ public class PlayerAttackState : PlayerState
     }
     public override void Update(){
         base.Update();
-        if(boss.happydoor){
             player.Holding();
-        }
+        
         StopA();
     }
     void StopA(){
@@ -72,7 +71,7 @@ public class PlayerAttackState : PlayerState
         if(hit.collider != null){
             Enemy enemy = hit.transform.GetComponent<Enemy>();
             if(enemy != null){
-                enemy.TakeDamage(damage,ShiledDamage);
+                enemy.getDamage(damage,ShiledDamage);
             }
             if(hit.collider.tag == "Boss"){
                 boss.getDamage(damage,ShiledDamage);
