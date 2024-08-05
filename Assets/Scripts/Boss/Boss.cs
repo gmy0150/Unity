@@ -15,7 +15,7 @@ public class Boss : EnemyHP
     TPlayer player;
     public int flooringdmg;
     BoxCollider2D sadFlooring;
-    public float dropInterval = 3f;
+    public float dropInterval =1f;
     public float laserinterval = 6f;
     public int laserDmg;
     public bool angerdoor {get;private set;}
@@ -116,7 +116,7 @@ public class Boss : EnemyHP
     }
 
     void Update() {
-        timer += Time.deltaTime;
+        // timer += Time.deltaTime;
         if(angerdoor){
             Angrydoor();
         }
@@ -126,12 +126,16 @@ public class Boss : EnemyHP
         if(happydoor){
             Happydoor();
         }
+        if(Input.GetKeyDown(KeyCode.K)){
+            setDoor(happy);
+        }
     }
     void Angrydoor(){
-        transtimer += Time.deltaTime;
+        // transtimer += Time.deltaTime;
         if(!TransPattern){
+            // pattern2timer += Time.deltaTime;
             if(!islaser){
-                pattern1timer += Time.deltaTime;
+                // pattern1timer += Time.deltaTime;
                 }
             if(pattern1timer >= laserinterval){
                 StartCoroutine("Laser");
@@ -140,7 +144,13 @@ public class Boss : EnemyHP
             if(timer >= dropInterval){
                 Vector3 dropPosition = GetRandomPointInBox(rockStart);
                 StartCoroutine(DropWithEffect(dropPosition));
+
                 timer = 0;
+            }
+            if(pattern2timer >= dropInterval + 1f){
+                Vector3 dropPositions = GetRandomPointInBox(rockStart);
+                StartCoroutine(DropWithEffect(dropPositions));
+                pattern2timer = 0;
             }
         }
         if(transtimer > 10){
@@ -182,9 +192,9 @@ public class Boss : EnemyHP
             }
             if(!player.isStun&&!bossGroggy){
                 pattern1timer += Time.deltaTime;
-                if(pattern1timer >= 2f){
-                    Vector3 dropPosition = GetRandomPointInBox(rockStart);
-                    StartCoroutine(DropStun(dropPosition));
+                if(pattern1timer >= 4f){
+                    // Vector3 dropPosition = GetRandomPointInBox(rockStart);
+                    StartCoroutine(DropStun());
                     pattern1timer = 0;
                 }
             }
@@ -222,12 +232,11 @@ public class Boss : EnemyHP
             animator.SetBool("Stun",true);  
         }
         if(!TransPattern){
-            if(timer > 3f){
-                for(int i = 1; i<= 3; i++){
-                    Vector3 brick = GetRandomPointInBox(brickstart);
-                    Vector3 rock = GetRandomPointInBox(rockStart);
-                    StartBrick(brick, rock);
-                }
+            if(timer > 0.7f){
+                Vector3 brick = GetRandomPointInBox(brickstart);
+                Vector3 rock = GetRandomPointInBox(rockStart);
+                StartBrick(brick, rock);
+                
             timer = 0;
             }
         }
@@ -331,21 +340,16 @@ public class Boss : EnemyHP
     IEnumerator DropWithEffect(Vector3 position) {
         GameObject effect = BossEffectPool.Instance.GetEffect();
         effect.transform.position = new Vector3(position.x,-2.5f,0);
-        yield return new WaitForSeconds(2f); 
+        yield return new WaitForSeconds(1f); 
         BossEffectPool.Instance.ReturnEffect(effect);
-        yield return new WaitForSeconds(0.3f); 
         GameObject drop = BossRockPool.Instance.GetFromPool();
         drop.transform.position = position;
         yield return new WaitForSeconds(2f); 
         BossRockPool.Instance.AddToPool(drop);
     }
-    IEnumerator DropStun(Vector3 position) {
-        GameObject effect = BossEffectPool.Instance.GetEffect();
-        effect.transform.position = new Vector3(position.x,-2.5f,0);
-        yield return new WaitForSeconds(2f); 
-        BossEffectPool.Instance.ReturnEffect(effect);
-        yield return new WaitForSeconds(0.3f); 
+    IEnumerator DropStun() {
 
+        Vector3 position = player.transform.position;
         GameObject drop = BossRockPool.Instance.GetFromStun();
         drop.transform.position = new Vector3(position.x,-2.5f,0);
         yield return new WaitForSeconds(2f); 

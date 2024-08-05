@@ -205,7 +205,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: JumpSword
-  m_Speed: 1
+  m_Speed: 2
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: 4787379598962857880}
@@ -439,7 +439,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: JumpBow
-  m_Speed: 1.1
+  m_Speed: 2
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: -5968897195186190640}
@@ -1219,7 +1219,7 @@ AnimatorStateMachine:
     m_Position: {x: 290, y: 290, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -2559506108457072178}
-    m_Position: {x: 270, y: 470, z: 0}
+    m_Position: {x: 290, y: 430, z: 0}
   m_ChildStateMachines:
   - serializedVersion: 1
     m_StateMachine: {fileID: -38756637516332119}

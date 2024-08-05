@@ -41,7 +41,8 @@ public class bullet : MonoBehaviour{
         boss = GameObject.FindWithTag("Boss").GetComponent<Boss>();
     }
     private void Update() {
-        rigid.velocity = new Vector2(-getx * 20f,rigid.velocity.y);
+        if(type != Type.Skill)
+        rigid.velocity = new Vector2(-getx * 40f,rigid.velocity.y);
         if(timer >= 3f){
             PlayerArrowPool.Instance.ReturnArrow(gameObject);
         }
@@ -98,7 +99,7 @@ public class bullet : MonoBehaviour{
             }
             else if(type == Type.Skill){
                 Vector3 bulletDir = rigid.velocity;
-                player.PlayerMove(collision.transform,bulletDir);
+                player.SkillASDMove(collision.transform,bulletDir);
                 if(collision.tag == "Boss")
                     boss.getDamage(20,20);
                 if(collision.tag == "Enemy")

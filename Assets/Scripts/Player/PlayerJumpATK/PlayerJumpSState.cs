@@ -23,4 +23,5 @@ public class PlayerJumpSState : PlayerJumpATKState
             stateMachine.ChangeState(player.idleState);
         }
     }
+    
 }

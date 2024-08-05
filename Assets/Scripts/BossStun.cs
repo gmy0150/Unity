@@ -52,7 +52,7 @@ public class BossStun : MonoBehaviour
         if(other.gameObject.layer == 7){
             player.getStun(); 
             player.getDamage(10);
-            Destroy(gameObject);
+            BossRockPool.Instance.AddToStun(gameObject);
         }
     }
     // Update is called once per frame

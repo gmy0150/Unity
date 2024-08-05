@@ -8,9 +8,9 @@ using UnityEngine.UI;
 
 public class HealthBarUI : MonoBehaviour
 {
-    [SerializeField] private Slider Healthslider;
     [SerializeField] private Slider backgroundSlider;
     [SerializeField] private Slider Shiledslider;
+    [SerializeField] private Image Healthsliders;
     [SerializeField] private GameObject Shiled;
     bool delete;
     Animator animator;
@@ -32,10 +32,11 @@ public class HealthBarUI : MonoBehaviour
     }
     public float getHealth(){
         Debug.Log(animator.transform.parent.parent.parent.name);
-        return Healthslider.value;
+        return Healthsliders.fillAmount;
     }
     public void UpdateHealthBar(float curHelath,float maxHealth){
-        Healthslider.value = curHelath/maxHealth;
+        // Healthslider.value = curHelath/maxHealth;
+        Healthsliders.fillAmount = curHelath/maxHealth;
         SlowHP(curHelath / maxHealth);
     }
     public void UpdateShieldBar(float curShiled,float maxShiled){
@@ -44,14 +45,7 @@ public class HealthBarUI : MonoBehaviour
 
         animator.SetBool("UI",true);
         animator.SetFloat("Blend",Shiledslider.value);
-        // if(Shiledslider.value <= 0.9f){
-        // }
-        // if(Shiledslider.value <= 0.7f){
-        //     animator.SetFloat("Blend",0.5f);
-        // }
-        // if(Shiledslider.value <= 0.3f){
-        //     animator.SetFloat("Blend",1f);
-        // }
+
         if(Shiledslider.value == 0f){
             animator.SetBool("UI",false);
             animator.SetBool("anim",true);
@@ -63,21 +57,17 @@ public class HealthBarUI : MonoBehaviour
     }
     IEnumerator SlowHPCoroutine(float targetHP) {
         float currentHP = backgroundSlider.value;
-        // float A = ;
-
+        float duration = 1f;
         float startTime = Time.time;
-        timeA += Time.deltaTime;
-        while (Mathf.Abs(currentHP/targetHP) >= 1f )  {
-        // Debug.Log(A);
-            float elapsedTime = Time.time - startTime;
-            if (elapsedTime * lerpSpeed > lerpSpeed) {
-                break;
-            }
+        float lerpSpeed = 1f / duration;
+
+        while (Time.time - startTime < duration) {
             currentHP = Mathf.Lerp(currentHP, targetHP, Time.deltaTime * lerpSpeed);
-            // Debug.Log(currentHP);
             backgroundSlider.value = currentHP;
             yield return null;
         }
+
+        // 최종적으로 targetHP로 설정
         backgroundSlider.value = targetHP;
     }
     void Update()

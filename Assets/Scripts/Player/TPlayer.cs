@@ -1,6 +1,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -106,6 +107,7 @@ public class TPlayer : MonoBehaviour
     public bool isBrick;
     bool isAlive = true;
     float timer;
+    float timer2;
     bool damaged;
     public Transform BossTransform;
     Boss boss;
@@ -114,6 +116,7 @@ public class TPlayer : MonoBehaviour
     public Image SkillSDImage;
     public Image SkillASImage;
     public Image SkillASDImage;
+    HealthBarUI healthBarUI;
     private void Awake() {
         #region StateMachine
             
@@ -122,12 +125,12 @@ public class TPlayer : MonoBehaviour
         moveState = new PlayerMoveState(this, stateMachine,"Move");
         jumpState = new PlayerJumpState(this, stateMachine, "Jump");
         airState = new PlayerAirState(this, stateMachine, "Jump");
-        attackAState = new PlayerAttackA(this, stateMachine, "AttackA",0f,10,20,6,3,2);
+        attackAState = new PlayerAttackA(this, stateMachine, "AttackA",0f,10,10,6,3,2);
         attackSState = new PlayerAttackS(this, stateMachine, "AttackS");
         attackDState = new PlayerAttackD(this, stateMachine, "AttackD",0.1f,20,40,6,3,3);
-        jumpAState = new PlayerJumpAState(this,stateMachine,"JumpSword",0.5f,10,5);
+        jumpAState = new PlayerJumpAState(this,stateMachine,"JumpSword",6f,10,10);
         jumpSState = new PlayerJumpSState(this,stateMachine,"JumpBow");
-        jumpDState = new PlayerJumpDState(this,stateMachine,"JumpHammer",0.5f,20,10);
+        jumpDState = new PlayerJumpDState(this,stateMachine,"JumpHammer",5f,20,40);
         dashState = new PlayerDashState(this, stateMachine,"Dash");
         skillAD = new PlayerAD(this,stateMachine);
         skillAS = new PlayerAS(this,stateMachine);
@@ -137,11 +140,15 @@ public class TPlayer : MonoBehaviour
         sprite = GetComponentsInChildren<SpriteRenderer>();
         lineRenderer = GetComponentInChildren<LineRenderer>();
         enemy1 = GameObject.FindGameObjectWithTag("Enemy").GetComponent<Enemy>();
+        if(enemy1 != null){
+            Debug.Log("적있음");
+        }
         Enemy[] allEnemies = FindObjectsOfType<Enemy>();
         foreach (Enemy enemy in allEnemies) {
             enemies.Add(enemy);
         }
         boss = GameObject.FindGameObjectWithTag("Boss").GetComponent<Boss>();
+        healthBarUI = GetComponentInChildren<HealthBarUI>();
     }
 
     private void Start() {
@@ -161,10 +168,11 @@ public class TPlayer : MonoBehaviour
                 dostun();
             }
             if(isBrick){
-                timer += Time.deltaTime;
-                if(timer > 0.5f){
-                    isBrick = false;
-                }
+                timer2 += Time.deltaTime;
+            }
+            if(isBrick && timer2 > 0.5f){
+                isBrick = false;
+                timer2 = 0;
             }
             if(curHP <= 0){
                 maxHP = 0;
@@ -175,6 +183,7 @@ public class TPlayer : MonoBehaviour
             }
             if(atkdmg&&timer >= 1f){
                 atkdmg = false;
+                
                 timer = 0;
             }
             FlipController();
@@ -452,7 +461,7 @@ public class TPlayer : MonoBehaviour
             GameObject bullet = Instantiate(SkillObj, bulletPosition, rotation);
             Rigidbody2D bulletRigidbody = bullet.GetComponent<Rigidbody2D>();
             if(bulletRigidbody != null){
-                bulletRigidbody.AddForce(transform.right * (-facingDir * 50), ForceMode2D.Impulse);
+                bulletRigidbody.AddForce(transform.right * (-facingDir * 70), ForceMode2D.Impulse);
             }
             bullet.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
             // StartCoroutine(detailASD());
@@ -461,27 +470,7 @@ public class TPlayer : MonoBehaviour
             Debug.Log("skillobj가 없음");
         }
     }
-    IEnumerator detailASD(){
-        bool hasTime = false;
-        targetTime = Time.time;
-        yield return new WaitForSeconds(0.3f);
-        yield return new WaitUntil(() => CheckEnter()||skilalsdTime()||checkWallAhead());
-        foreach (Enemy enemy in enemies)
-        {
-            if (enemy != null && enemy.isEnter){
-                hasTime = true;
-                Debug.Log(enemy);
-                Transform enemyTransform = enemy.transform;
-                Vector3 targetPosition = enemyTransform.position - enemyTransform.forward * 2; // 적의 위치에서 앞으로 2만큼 떨어진 곳으로 설정
-                gameObject.transform.position = targetPosition;
-                enemy.getDamage(50,50);
-                enemy.isEnter = false;
-            }
-        }
-        if(!hasTime)
-            yield break;
-        }
-    public void PlayerMove(Transform transEnemy, Vector3 bulletDirection){
+    public void SkillASDMove(Transform transEnemy, Vector3 bulletDirection){
         Transform enemyTransform = transEnemy.transform;
         Vector3 targetPosition = enemyTransform.position - bulletDirection.normalized * 2; // 적의 위치에서 앞으로 2만큼 떨어진 곳으로 설정
         gameObject.transform.position = targetPosition;
@@ -489,13 +478,7 @@ public class TPlayer : MonoBehaviour
         enemy1.getDamage(50,50);
         boss.getDamage(50,50);
     }
-    bool skilalsdTime() {
-        if (Time.time - targetTime >= 2f) { 
-            return true;
-        } else {
-            return false;
-        }
-    }
+
     bool checkWallAhead() {
 
         Vector2 raycastStart = rigid.position + Vector2.left * 1f * facingDir; 
@@ -518,6 +501,7 @@ public class TPlayer : MonoBehaviour
         if(curHP <= 0){
             isAlive = false;
         }
+        healthBarUI.UpdateHealthBar(curHP,maxHP);
     }
     public void takeDamage(int hp){
         if(!atkdmg){
@@ -529,10 +513,10 @@ public class TPlayer : MonoBehaviour
         if(curHP <= 0){
             isAlive = false;
         }
+        healthBarUI.UpdateHealthBar(curHP,maxHP);
     }
     public void React(){
         isBrick = true;
-        // stateMachine.ChangeState(idleState);
         rigid.AddForce(Vector3.right * 50, ForceMode2D.Impulse);
     }
 
@@ -677,7 +661,6 @@ public class TPlayer : MonoBehaviour
     
     }
         public IEnumerator KeyD(){
-        Debug.Log("확인0.2");
         yield return new WaitForSeconds(0.1f);
         stateMachine.ChangeState(jumpDState);
     

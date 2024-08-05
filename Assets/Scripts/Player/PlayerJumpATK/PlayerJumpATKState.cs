@@ -10,6 +10,8 @@ public class PlayerJumpATKState : PlayerState
     protected float attackRange;
     protected LayerMask enemyLayer;
     protected LayerMask bossLayer;
+    protected bool var; 
+    protected bool isPaused;
 
     public PlayerJumpATKState(TPlayer _player, PlayerStateMachine _stateMachine, string _animBoolName,float _attackRange,int _damage,int _shiledDMG) : base(_player, _stateMachine, _animBoolName)
     {
@@ -41,11 +43,10 @@ public class PlayerJumpATKState : PlayerState
         if(boss.happydoor&&!boss.TransPattern){
             player.Holding();
         }
-        if(player.IsGroundDetected()&&triggerCalled){
-            stateMachine.ChangeState(player.idleState);
-        }
-        
-        // StopA();
+        // if(player.IsGroundDetected()&&triggerCalled){
+        //     stateMachine.ChangeState(player.idleState);
+        // }
+
     }
     protected IEnumerator BusyFor()
     {
@@ -53,16 +54,15 @@ public class PlayerJumpATKState : PlayerState
         yield return new WaitForSeconds(0.3f);
         attacked = false;
     }
-    void CheckAttack(){
-        RaycastHit2D hit =Physics2D.Raycast(player.transform.position, player.transform.right, attackRange,enemyLayer|bossLayer);
-        if(hit.collider != null){
-            Enemy enemy = hit.transform.GetComponent<Enemy>();
-            if(enemy != null){
-                enemy.getDamage(damage,ShiledDamage);
-            }
-            if(hit.collider.tag == "Boss"){
-                boss.getDamage(damage,ShiledDamage);
-            }
-        }
-    } 
+    protected void PauseAnim(){
+        player.anim.speed = 0;
+        isPaused = true;
+    }
+    protected void ResumeAnim(){
+        player.anim.speed = 1;
+        isPaused = false;
+        Debug.Log("1111");
+    }
+
+
 }
