@@ -61,7 +61,6 @@ public class PlayerJumpATKState : PlayerState
     protected void ResumeAnim(){
         player.anim.speed = 1;
         isPaused = false;
-        Debug.Log("1111");
     }
 
 
