@@ -2,12 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerAnimationTriggers : MonoBehaviour
+public class AnimationTriggers : MonoBehaviour
 {
     private TPlayer player => GetComponentInParent<TPlayer>();
     Animator animator;
     public List<HealthBarUI> healthBars = new List<HealthBarUI>();
-
     private void Awake()
     {
         animator = GetComponent<Animator>();

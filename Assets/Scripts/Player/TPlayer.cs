@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public class TPlayer : MonoBehaviour
@@ -108,6 +109,7 @@ public class TPlayer : MonoBehaviour
     bool isAlive = true;
     float timer;
     float timer2;
+    float damagetimer;
     bool damaged;
     public Transform BossTransform;
     Boss boss;
@@ -119,7 +121,6 @@ public class TPlayer : MonoBehaviour
     HealthBarUI healthBarUI;
     private void Awake() {
         #region StateMachine
-            
         stateMachine = new PlayerStateMachine();
         idleState = new PlayerIdleState(this, stateMachine,"Idle");
         moveState = new PlayerMoveState(this, stateMachine,"Move");
@@ -163,7 +164,6 @@ public class TPlayer : MonoBehaviour
             if(CheckStun()){
                 stateMachine.currentState.Update();
             }else{
-
                 // stateMachine.ChangeState(idleState);
                 dostun();
             }
@@ -183,19 +183,30 @@ public class TPlayer : MonoBehaviour
             }
             if(atkdmg&&timer >= 1f){
                 atkdmg = false;
-                
                 timer = 0;
             }
             FlipController();
         }
         if(Input.GetKeyDown(KeyCode.Z)){
-            boss.getDamage(50,10);
-        }
-        if(IsGroundDetected()){
-            // notupdate = false;
+            boss.getDamage(50,50);
         }
         UpdateCooldownUI();
-
+        if(IsGroundDetected()){
+            jumpDState.pass = true;
+        }
+        if(damaged){
+            damagetimer += Time.deltaTime;
+            if(damagetimer >= 0.3f){
+                if(IsGroundDetected()){
+                    damaged = false;
+                    damagetimer = 0;
+                }
+            }
+            if(damagetimer >= 0.5f){
+                damaged = false;
+                damagetimer = 0;
+            }
+        }
     }
     bool CheckStun(){
         if(isStun)
@@ -354,14 +365,7 @@ public class TPlayer : MonoBehaviour
             }
         }
     }
-    bool CheckEnter(){
-        foreach (Enemy enemy in enemies){
-            if (enemy != null && enemy.isEnter){
-                return true;
-            }
-        }
-        return false;
-    }
+
     public bool CoolTime(string cool){
         if(cool == "SkillAD"){
             if(!SkillADUsed||Time.time >lastskillad + SkillADCool){
@@ -552,7 +556,7 @@ public class TPlayer : MonoBehaviour
         //     // isDead = true;
         //     // Die();
         }
-        damaged = false;
+        
     }
     public void getStun(){
         isStun = true;

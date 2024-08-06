@@ -11,6 +11,8 @@ public class Boss : EnemyHP
     [SerializeField]private GameObject tlaser;
     [SerializeField]private GameObject laser;
     [SerializeField]private GameObject brickstart;
+    [SerializeField]private Animator laseranim;
+    // [SerializeField]private Animator brickstart;
 
     TPlayer player;
     public int flooringdmg;
@@ -30,11 +32,13 @@ public class Boss : EnemyHP
     GameObject sadflooreffect;
     bool islaser;
     int lasery;
+    int lasery2;
     float timer;
     float dmgtimer;
     public static float pattern1timer;
     public float pattern2timer;
     bool atk;
+    bool isStop;
     public float transtimer = 0;
     Rigidbody2D rigid;
     private Vector2 boxCenter;
@@ -45,12 +49,17 @@ public class Boss : EnemyHP
     public GameObject shiledimage;
     public Sprite saveUI;
     public GameObject weakness;
+    private GameObject newlaser;
+    private GameObject newobj;
+    Animator newlaseranim;
     bool bossdie;
     bool bossGroggy;
     int savehp;
     public bool TransPattern{get;private set;}
     Animator animator;
     bool init;
+    bool laser2;
+    bool isloop;
     private void Awake() {
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<TPlayer>();
         animator = GetComponentInChildren<Animator>();
@@ -87,6 +96,9 @@ public class Boss : EnemyHP
         base.Awake();
         shiledimage.SetActive(false);
         weakness.SetActive(false);
+        newlaser = Instantiate(laser);
+        newlaseranim = newlaser.GetComponent<Animator>();
+        newobj = Instantiate(tlaser);
     }
     private IEnumerator InitializeBoxCollider()
     {
@@ -131,14 +143,17 @@ public class Boss : EnemyHP
         }
     }
     void Angrydoor(){
-        // transtimer += Time.deltaTime;
+        if(!init){
+            
+        }
+        transtimer += Time.deltaTime;
         if(!TransPattern){
-            // pattern2timer += Time.deltaTime;
+            pattern2timer += Time.deltaTime;
             if(!islaser){
-                // pattern1timer += Time.deltaTime;
+                pattern1timer += Time.deltaTime;
                 }
-            if(pattern1timer >= laserinterval){
-                StartCoroutine("Laser");
+            if(pattern1timer >= 4){
+                StartCoroutine(Laser(1.5f,2,30,false));
                 pattern1timer = 0;
             }
             if(timer >= dropInterval){
@@ -153,7 +168,18 @@ public class Boss : EnemyHP
                 pattern2timer = 0;
             }
         }
-        if(transtimer > 10){
+        if(transtimer >= 40){
+            TransPattern = true;
+                
+            if(!islaser){
+                pattern1timer += Time.deltaTime;
+                }
+            if(pattern1timer >= 2){
+                StartCoroutine(Laser(1,1,40,true));
+                pattern1timer = 0;
+            }
+        }
+        if(transtimer > 60){
             int range = Random.Range(0,2);
             if(range == 0){
                 setDoor(sad);
@@ -164,12 +190,14 @@ public class Boss : EnemyHP
                 Debug.Log("기쁨");
             }
             transtimer = 0;
+            init =  false;
         }
     }
     void Saddoor(){
         if(!init){
-            maxShiled = 400;
-            curShiled = 400;
+            // maxShiled = 200;
+            // curShiled = 200;
+            curShiled = maxShiled;
             shiledimage.GetComponent<Image>().sprite = saveUI;
             shiledimage.SetActive(true);
             healthbar.UpdateShieldBar(curShiled,maxShiled);
@@ -240,7 +268,7 @@ public class Boss : EnemyHP
             timer = 0;
             }
         }
-        if(savehp - curHealth >= 100){
+        if(savehp - curHealth >= 500){
             TransPattern = true;
             weakness.SetActive(false);
             transtimer += Time.deltaTime;
@@ -273,38 +301,88 @@ public class Boss : EnemyHP
     public void patternoff(){
         pattern1timer = 0;
     }
-    IEnumerator Laser(){
+    void angry2phase(){
+        
+    }
+    IEnumerator Laser(float laserTime, float laserduration,int damage,bool tof){
+        laser2 = tof;
         int y = Random.Range(0,3);
+        int x = Random.Range(0,2);
         islaser = true;
         pattern1timer = 0;
         if(y == 0){
-            lasery = -1;
+            lasery = 4;
             tlaser.transform.position = new Vector3(tlaser.transform.position.x,lasery,0);
+            Debug.Log(1);
+            if(tof == true){
+                if(x == 0){
+                lasery2 = 7;
+                newobj.transform.position = new Vector3(tlaser.transform.position.x,lasery2 ,0);
+                }
+                if(x == 1){
+                lasery2 = 10;
+                newobj.transform.position = new Vector3(tlaser.transform.position.x,lasery2 ,0);
+                }
+            }
         }
         if(y == 1){
-            lasery = 2;
+            lasery = 7;
             tlaser.transform.position = new Vector3(tlaser.transform.position.x,lasery,0); 
+            Debug.Log(2);
+            if(tof == true){
+                if(x == 0){
+                lasery2 = 4;
+                newobj.transform.position = new Vector3(tlaser.transform.position.x,lasery2 ,0);
+                }
+                if(x == 1){
+                lasery2 = 10;
+                newobj.transform.position = new Vector3(tlaser.transform.position.x,lasery2 ,0);
+                }
+            }
         }
         
         if(y == 2){
-            lasery = 5;
+            lasery = 10;
             tlaser.transform.position = new Vector3(tlaser.transform.position.x,lasery,0); 
+            Debug.Log(3);
+            if(tof == true){
+                if(x == 0){
+                lasery2 = 4;
+                newobj.transform.position = new Vector3(tlaser.transform.position.x,lasery2 ,0);
+                }
+                if(x == 1){
+                lasery2 = 7;
+                newobj.transform.position = new Vector3(tlaser.transform.position.x,lasery2 ,0);
+                }
+            }
         }
 
         tlaser.SetActive(true);
-        yield return new WaitForSeconds(2f);
+        if(tof)
+            newobj.SetActive(true);
         tlaser.SetActive(false);
+        if(tof){
+            if(newobj != null)
+            newobj.SetActive(false);
+        }
+        newlaser.transform.position = new Vector3(laser.transform.position.x,lasery2,0);
         laser.transform.position = new Vector3(laser.transform.position.x,lasery,0);
         
         laserSize = laser.GetComponent<SpriteRenderer>().bounds.size;
         laserPosition = laser.transform.position;
         // 박스 캐스트 실행
-
+        if(tof){
+            newlaser.SetActive(true);
+            newlaseranim.SetBool("laser",true);
+        }
         laser.SetActive(true);
-        float laserDuration = 1f; 
-        float elapsedTime = 0f;
+        laseranim.SetBool("laser",true);
+        yield return new WaitForSeconds(laserTime);
 
-        while (elapsedTime < laserDuration)
+        float elapsedTime = 0f;
+        ResumeAnim();
+
+        while (elapsedTime < laserduration)
         {
             RaycastHit2D rayed = Physics2D.BoxCast(
                 laser.transform.position, 
@@ -314,15 +392,39 @@ public class Boss : EnemyHP
                 0f, 
                 layerMask
             );
+
             if (rayed.collider != null)
             {
-                
-                    player.getDamage(laserDmg);
+                if(!atk){
+                player.getDamage(damage);
+                atk = true;
+
+                }
+            }
+            if(tof){
+                RaycastHit2D rayed2 = Physics2D.BoxCast(
+                newlaser.transform.position, 
+                laserSize, 
+                0f, 
+                Vector2.left, 
+                0f, 
+                layerMask
+            );
+            if (rayed2.collider != null)
+            {
+                if(!atk){
+                player.getDamage(damage);
+                atk = true;
+
+                }
+            }
             }
             elapsedTime += Time.deltaTime;
             yield return null;
         }
-        laser.SetActive(false);
+
+        ResumeAnim();
+
         pattern1timer = 0;
         islaser = false;
         atk = false;
@@ -361,8 +463,44 @@ public class Boss : EnemyHP
         GameObject drops = BossRockPool.Instance.GetBrickFromPool();
         drops.transform.position = positions;
     }
-    
+    public void LoopTrigger(){
+    //     StartCoroutine(LoopAnim());
+    }
+    IEnumerator LoopAnim(){
+        isloop = true;
+        float animationLength = laseranim.GetCurrentAnimatorStateInfo(0).length;
+        float startTime = 4 / animationLength;
+        float endTime = (4 - 6) / animationLength;
+        while (isloop){
+            laseranim.Play("laseranim",0,startTime);
+            // while(laseranim.GetCurrentAnimatorStateInfo(0).normalizedTime < endTime){
+            //     yield return null;
+            // }
+            yield return new WaitForSeconds(endTime);
 
+            laseranim.Play("laseranim",0,startTime);
+        }
+    }
+    public void pauseTrigger(){
+        laseranim.speed = 0;
+        isStop = true;
+        if(laser2){
+            newlaseranim.speed = 0;
+        }
+    }
+    void ResumeAnim(){
+        laseranim.speed = 1;
+        isStop = false;
+        isloop = false;
+        if(laser2){
+            newlaseranim.speed = 1;
+        }
+    }
+    public void destroyTrigger(){
+        laser.SetActive(false);
+        if(laser2)
+        newlaser.SetActive(false);
+    }
     public IEnumerator SadPattern3(){
         tlaser.SetActive(true);
         yield return new WaitForSeconds(1f);
@@ -404,7 +542,7 @@ public class Boss : EnemyHP
     }
     private void OnCollisionEnter2D(Collision2D other) {
         if(other.transform.tag == "Player"){
-            player.getDamage(20);
+            player.getDamage(10);
         }
     }
 }
